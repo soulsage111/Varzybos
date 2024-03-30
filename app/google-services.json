@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1066221432192",
+    "project_id": "varzybos-5ddd3",
+    "storage_bucket": "varzybos-5ddd3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1066221432192:android:2a41395900053a294fe565",
+        "android_client_info": {
+          "package_name": "com.app.varzybos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGD074cfcs5NREYDoaYcaB1HVSxcNV0EE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
