@@ -1,5 +1,6 @@
 package com.app.varzybos
 
+import android.app.PendingIntent.getActivity
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
@@ -78,19 +79,22 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat.startActivity
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import org.w3c.dom.Text
 import java.security.AccessController.getContext
+import org.koin.androidx.compose.getViewModel
+import android.app.Application
+import org.koin.androidx.compose.inject
 
 @ExperimentalMaterial3Api
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         setContent {
             VarzybosTheme {
                 Surface(
@@ -117,8 +121,9 @@ private fun Login(modifier: Modifier = Modifier) {
     }
     val fontColor = Color.DarkGray;
     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
-
-    val context = LocalContext.current
+    val mainViewModel : MainViewModel = getViewModel()
+    //val context = MainActivity.appContext
+    val context = mainViewModel.getApplication<Application>().applicationContext
 
     fun isValidEmail(email: String): Boolean {
         return email.matches(emailRegex.toRegex())
@@ -187,13 +192,10 @@ private fun Login(modifier: Modifier = Modifier) {
             onClick = {
                 if (isValidEmail(emailAddress.text)) {
                     var auth: FirebaseAuth = Firebase.auth
-
                     auth.signInWithEmailAndPassword(emailAddress.text, password.text).addOnSuccessListener {
-                        //MainActivity().mainViewModel = MainViewModel()
-                        //val mainViewModel = MainActivity().mainViewModel
                         Toast.makeText(context, "Prisijungimas pavyko", Toast.LENGTH_SHORT).show();
-                        //mainViewModel.user.email = emailAddress.text
-                        FirebaseApp.initializeApp(MainActivity.appContext)
+                        mainViewModel.user.email = emailAddress.text
+                        FirebaseApp.initializeApp(context)
                         var databaseService: DatabaseService = DatabaseService()
                         if (databaseService.isAdmin(emailAddress.text)){
                             var intent = Intent(context , AdminInterfaceActivity::class.java)

@@ -74,6 +74,7 @@ import com.app.varzybos.ui.theme.VarzybosTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import org.koin.androidx.compose.getViewModel
 import kotlin.system.exitProcess
 
 @ExperimentalMaterial3Api
@@ -104,7 +105,7 @@ private fun Interface(modifier: Modifier = Modifier) {
 
    // val eventList = mainViewModel.eventList.observeAsState()
 
-    val mainViewModel = MainActivity.mainViewModel
+    val mainViewModel : MainViewModel = getViewModel()
 
     var selectedItem by remember { mutableIntStateOf(0) }
     val items = listOf("Visi renginiai", "Mano renginiai", "Pranešimai")

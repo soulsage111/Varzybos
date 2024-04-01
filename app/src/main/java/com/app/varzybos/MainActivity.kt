@@ -11,22 +11,25 @@ import com.google.firebase.FirebaseApp
 class MainActivity : Application() {
     //var auth: FirebaseAuth
 
+    //var appContext: Context = applicationContext
+
     override fun onCreate() {
         super.onCreate()
-        appContext = applicationContext
         FirebaseApp.initializeApp(applicationContext)
         //auth = Firebase.auth
 
 //        var intent = Intent(this , MainActivity::class.java)
 //        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK;
 //        startActivity(intent)
+        //appContext = applicationContext
     }
 
-
-    companion object {
-        lateinit  var appContext: Context
-        var mainViewModel: MainViewModel = MainViewModel()
-    }
+    //fun getMainContext(): Context{
+        //return appContext
+   // }
+//    companion object {
+//        //lateinit var appContext: Context
+//    }
 
 }
 

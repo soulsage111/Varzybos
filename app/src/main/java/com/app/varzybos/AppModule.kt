@@ -7,6 +7,6 @@ import org.koin.core.scope.get
 import org.koin.dsl.module
 
 val appModule = module {
-    single { MainViewModel() }
+    single { MainViewModel(androidApplication()) }
     viewModel { ApplicationViewModel(androidApplication())}
 }

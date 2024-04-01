@@ -1,7 +1,11 @@
 package com.app.varzybos
 
+import android.app.Application
 import android.content.ContentValues
+import android.content.Context
 import android.util.Log
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.app.varzybos.data.Event
@@ -12,7 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
 import java.util.Date
 
-class MainViewModel(): ViewModel() {
+class MainViewModel(application: Application): AndroidViewModel(application) {
 //    var eventList: MutableLiveData<List<Event>> = MutableLiveData<List<Event>>()
     var eventList: List<Event> = listOf()
     var databaseService: DatabaseService = DatabaseService()
@@ -37,9 +41,12 @@ class MainViewModel(): ViewModel() {
         return databaseService.isAdmin(user.email)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     fun getEventsToList(): List<Event> {
         var eventList : List<Event> = listOf()
         var event : Event = Event()
+        var context = getApplication<Application>().applicationContext
+        FirebaseApp.initializeApp(context)
         var queryResult = databaseService.firestore.collection("Events").get().result.documents
         queryResult.forEach(){doc ->
             var map = doc.data

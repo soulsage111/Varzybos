@@ -79,6 +79,7 @@ dependencies {
     implementation("androidx.compose.material3:material3-adaptive:1.0.0-alpha04")
     implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.0.0-alpha02")
     implementation("io.insert-koin:koin-android:3.1.4")
+    implementation("io.insert-koin:koin-androidx-compose:3.1.4")
     implementation("com.google.android.gms:play-services-location:19.0.1")
     implementation("com.google.android.gms:play-services-maps:18.0.2")
     val nav_version = "2.7.6"
