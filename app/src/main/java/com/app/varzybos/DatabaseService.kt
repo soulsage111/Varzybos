@@ -2,6 +2,12 @@ package com.app.varzybos
 
 import android.util.Log
 import com.app.varzybos.data.Event
+import com.google.android.gms.tasks.Continuation
+import com.google.android.gms.tasks.OnSuccessListener
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
@@ -9,6 +15,8 @@ import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.tasks.await
+import java.util.concurrent.atomic.AtomicBoolean
 
 class DatabaseService {
     var firestore : FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -31,8 +39,21 @@ class DatabaseService {
         }
     }
 
+//    fun getAdminDocument(email : String) : Task<DocumentSnapshot> {
+//        return firestore.collection("Admins").document(email).get().await()
+//    }
     fun isAdmin(email : String): Boolean{
-        var value = firestore.collection("Admins").document(email).get().result.data
-        return value!!["isAdmin"] as Boolean
+        var value = firestore.collection("Admins").document(email).get()
+        var ret = AtomicBoolean(false)
+
+        //return value.data!!["isAdmin"] as Boolean
+
+        value.addOnSuccessListener {
+            @Override
+            fun onSuccess(s: DocumentSnapshot) {
+                ret.set(s.data!!["isAdmin"] as Boolean)
+            }
+        }
+        return ret.get()
     }
 }
