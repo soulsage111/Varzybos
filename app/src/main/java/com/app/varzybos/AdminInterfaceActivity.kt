@@ -101,11 +101,11 @@ override fun onCreate(savedInstanceState: Bundle?) {
 @Composable
 private fun Interface(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    //val mainViewModel : MainViewModel by viewModel<MainViewModel>()
+    val mainViewModel : MainViewModel by viewModel<MainViewModel>()
 
    // val eventList = mainViewModel.eventList.observeAsState()
 
-    val mainViewModel : MainViewModel = getViewModel()
+    //val mainViewModel = MainActivity.mainViewModel
 
     var selectedItem by remember { mutableIntStateOf(0) }
     val items = listOf("Visi renginiai", "Mano renginiai", "Pranešimai")

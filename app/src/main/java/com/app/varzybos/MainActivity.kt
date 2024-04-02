@@ -2,7 +2,6 @@ package com.app.varzybos
 
 import android.app.Application
 import android.content.Context
-import android.content.Intent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.google.firebase.FirebaseApp
 
@@ -21,15 +20,13 @@ class MainActivity : Application() {
 //        var intent = Intent(this , MainActivity::class.java)
 //        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK;
 //        startActivity(intent)
-        //appContext = applicationContext
     }
 
-    //fun getMainContext(): Context{
-        //return appContext
-   // }
-//    companion object {
-//        //lateinit var appContext: Context
-//    }
+
+    companion object {
+        lateinit  var appContext: Context
+        //var mainViewModel: MainViewModel = MainViewModel(get())
+    }
 
 }
 

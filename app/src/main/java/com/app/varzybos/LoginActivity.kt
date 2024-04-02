@@ -2,7 +2,6 @@ package com.app.varzybos
 
 import android.app.PendingIntent.getActivity
 import android.content.ContentValues.TAG
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -12,71 +11,45 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.Preview
-import com.app.varzybos.ui.theme.VarzybosTheme
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.app.varzybos.ui.theme.VarzybosTheme
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -121,8 +94,7 @@ private fun Login(modifier: Modifier = Modifier) {
     }
     val fontColor = Color.DarkGray;
     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
-    val mainViewModel : MainViewModel = getViewModel()
-    //val context = MainActivity.appContext
+    val mainViewModel : MainViewModel by viewModel<MainViewModel>()
     val context = mainViewModel.getApplication<Application>().applicationContext
 
     fun isValidEmail(email: String): Boolean {
@@ -155,9 +127,7 @@ private fun Login(modifier: Modifier = Modifier) {
                 unfocusedTextColor = fontColor
             ),
             modifier = Modifier
-                .fillMaxWidth(0.8f),
-
-
+                .fillMaxWidth(0.8f)
             )
         Spacer(modifier = Modifier.size(16.dp))
         OutlinedTextField(
@@ -194,10 +164,14 @@ private fun Login(modifier: Modifier = Modifier) {
                     var auth: FirebaseAuth = Firebase.auth
                     auth.signInWithEmailAndPassword(emailAddress.text, password.text).addOnSuccessListener {
                         Toast.makeText(context, "Prisijungimas pavyko", Toast.LENGTH_SHORT).show();
-                        mainViewModel.user.email = emailAddress.text
-                        FirebaseApp.initializeApp(context)
+                        //mainViewModel.user.email = emailAddress.text
+
+                        FirebaseApp.initializeApp(MainActivity.appContext)
                         var databaseService: DatabaseService = DatabaseService()
+                        databaseService.initFirestore()
                         if (databaseService.isAdmin(emailAddress.text)){
+                            mainViewModel.databaseService.initFirestore()
+                            mainViewModel.startEventListening()
                             var intent = Intent(context , AdminInterfaceActivity::class.java)
                             context.startActivity(intent)
                         } else {

@@ -19,7 +19,7 @@ import kotlinx.coroutines.tasks.await
 import java.util.concurrent.atomic.AtomicBoolean
 
 class DatabaseService {
-    var firestore : FirebaseFirestore = FirebaseFirestore.getInstance()
+    lateinit var firestore : FirebaseFirestore
 
     // Saves or updates event in database
     fun saveEvent(event: Event){
@@ -37,6 +37,10 @@ class DatabaseService {
         result.addOnFailureListener {
             Log.d("DatabaseService", "Failed to create event $event")
         }
+    }
+
+    fun initFirestore(){
+        firestore = FirebaseFirestore.getInstance()
     }
 
 //    fun getAdminDocument(email : String) : Task<DocumentSnapshot> {
