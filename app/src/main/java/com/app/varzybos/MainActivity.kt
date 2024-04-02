@@ -2,7 +2,6 @@ package com.app.varzybos
 
 import android.app.Application
 import android.content.Context
-import android.content.Intent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.google.firebase.FirebaseApp
 
@@ -25,7 +24,7 @@ class MainActivity : Application() {
 
     companion object {
         lateinit  var appContext: Context
-        var mainViewModel: MainViewModel = MainViewModel()
+        //var mainViewModel: MainViewModel = MainViewModel(get())
     }
 
 }

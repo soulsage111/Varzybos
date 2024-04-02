@@ -9,9 +9,10 @@ import java.util.Date
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.util.concurrent.atomic.AtomicBoolean
 
 class DatabaseService {
-    var firestore : FirebaseFirestore = FirebaseFirestore.getInstance()
+    lateinit var firestore : FirebaseFirestore
 
     // Saves or updates event in database
     fun saveEvent(event: Event){
@@ -31,8 +32,25 @@ class DatabaseService {
         }
     }
 
-    fun isAdmin(email : String): Boolean{
-        var value = firestore.collection("Admins").document(email).get().result.data
-        return value!!["isAdmin"] as Boolean
+    fun initFirestore(){
+        firestore = FirebaseFirestore.getInstance()
     }
+
+    fun isAdmin(email : String): Boolean{
+        var a = AtomicBoolean(false)
+        var value = firestore.collection("Admins").document(email).get().addOnSuccessListener {
+            @Override
+            fun onSuccess(){
+                a.set(true)
+            }
+
+        }
+        return if(a.get()){
+            value.result.data!!["isAdmin"] as Boolean
+
+        } else {
+            true
+        }
+    }
+
 }

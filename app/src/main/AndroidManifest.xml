@@ -17,7 +17,6 @@
         <activity
             android:name=".LoginActivity"
             android:exported="true"
-            android:label="@string/title_activity_login"
             android:theme="@style/Theme.Varzybos">
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
@@ -27,25 +26,21 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Varzybos">
         </activity>
         <activity
             android:name=".RegistrationActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Varzybos">
         </activity>
         <activity
             android:name=".InterfaceActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Varzybos">
         </activity>
         <activity
             android:name=".AdminInterfaceActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Varzybos">
         </activity>
     </application>

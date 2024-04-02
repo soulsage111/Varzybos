@@ -1,12 +1,11 @@
 package com.app.varzybos
 
-import com.app.varzybos.MainViewModel
-import org.koin.android.ext.koin.androidApplication
+import androidx.compose.material3.ExperimentalMaterial3Api
 import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.core.scope.get
 import org.koin.dsl.module
 
+@OptIn(ExperimentalMaterial3Api::class)
 val appModule = module {
-    single { MainViewModel() }
-    viewModel { ApplicationViewModel(androidApplication())}
+    single { MainActivity() }
+    viewModel { MainViewModel()}
 }
