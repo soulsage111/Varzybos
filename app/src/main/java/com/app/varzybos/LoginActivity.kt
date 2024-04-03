@@ -61,6 +61,9 @@ import org.w3c.dom.Text
 import java.security.AccessController.getContext
 import org.koin.androidx.compose.getViewModel
 import android.app.Application
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.koin.androidx.compose.inject
 
 @ExperimentalMaterial3Api
@@ -96,6 +99,7 @@ private fun Login(modifier: Modifier = Modifier) {
     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
     val context = mainViewModel.getApplication<Application>().applicationContext
+    val localContext = LocalContext.current
 
     fun isValidEmail(email: String): Boolean {
         return email.matches(emailRegex.toRegex())
@@ -166,17 +170,18 @@ private fun Login(modifier: Modifier = Modifier) {
                         Toast.makeText(context, "Prisijungimas pavyko", Toast.LENGTH_SHORT).show();
                         //mainViewModel.user.email = emailAddress.text
 
-                        FirebaseApp.initializeApp(MainActivity.appContext)
+                        FirebaseApp.initializeApp(context)
                         var databaseService: DatabaseService = DatabaseService()
                         databaseService.initFirestore()
-                        if (databaseService.isAdmin(emailAddress.text)){
+
+                        if (runBlocking {databaseService.isAdmin(emailAddress.text)}){
                             mainViewModel.databaseService.initFirestore()
                             mainViewModel.startEventListening()
-                            var intent = Intent(context , AdminInterfaceActivity::class.java)
-                            context.startActivity(intent)
+                            var intent = Intent(localContext , AdminInterfaceActivity::class.java)
+                            localContext.startActivity(intent)
                         } else {
-                            var intent = Intent(context , InterfaceActivity::class.java)
-                            context.startActivity(intent)
+                            var intent = Intent(localContext , InterfaceActivity::class.java)
+                            localContext.startActivity(intent)
                         }
 
                     }.addOnFailureListener{e ->

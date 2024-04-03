@@ -20,6 +20,7 @@ class MainActivity : Application() {
 //        var intent = Intent(this , MainActivity::class.java)
 //        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK;
 //        startActivity(intent)
+        appContext = applicationContext
     }
 
 

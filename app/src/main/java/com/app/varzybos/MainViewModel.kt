@@ -9,12 +9,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import com.app.varzybos.data.Event
 import com.app.varzybos.data.User
+import kotlinx.coroutines.runBlocking
 import java.util.Date
 import kotlin.reflect.KProperty
 
-class MainViewModel() : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 //    var eventList: MutableLiveData<List<Event>> = MutableLiveData<List<Event>>()
-    var eventList: List<Event> = listOf()
+    var eventList = mutableListOf<Event> ()
     var databaseService: DatabaseService = DatabaseService()
     var user : User = User()
 
@@ -23,7 +24,9 @@ class MainViewModel() : ViewModel() {
     }
 
     fun checkIfAdmin() : Boolean {
-        return databaseService.isAdmin(user.email)
+        var r:Boolean
+        runBlocking { r = databaseService.isAdmin(user.email) }
+        return r
     }
 
     @OptIn(ExperimentalMaterial3Api::class)

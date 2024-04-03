@@ -46,18 +46,19 @@ class DatabaseService {
 //    fun getAdminDocument(email : String) : Task<DocumentSnapshot> {
 //        return firestore.collection("Admins").document(email).get().await()
 //    }
-    fun isAdmin(email : String): Boolean{
-        var value = firestore.collection("Admins").document(email).get()
+suspend fun isAdmin(email : String): Boolean{
+        var value = firestore.collection("Admins").document(email).get().await()
         var ret = AtomicBoolean(false)
 
+        return value.data!!["isAdmin"] as Boolean
         //return value.data!!["isAdmin"] as Boolean
 
-        value.addOnSuccessListener {
-            @Override
-            fun onSuccess(s: DocumentSnapshot) {
-                ret.set(s.data!!["isAdmin"] as Boolean)
-            }
-        }
-        return ret.get()
+//        value.addOnSuccessListener {
+//            @Override
+//            fun onSuccess(s: DocumentSnapshot) {
+//                ret.set(s.data!!["isAdmin"] as Boolean)
+//            }
+//        }
+//        return ret.get()
     }
 }
