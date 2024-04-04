@@ -1,9 +1,13 @@
 package com.app.varzybos
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.ContentValues.TAG
 import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -46,15 +50,17 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.varzybos.data.Event
 import com.app.varzybos.ui.theme.VarzybosTheme
 import java.time.Instant
 import java.util.Date
 
 class EventCreationActivity: ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     @Override
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContent {
             VarzybosTheme {
                 Surface(
@@ -68,12 +74,14 @@ class EventCreationActivity: ComponentActivity() {
     }
 }
 
+
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 private fun Interface(modifier: Modifier = Modifier) {
+    val mainViewModel : MainViewModel by viewModel<MainViewModel>()
     val context = LocalContext.current
     var eventName by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
@@ -83,6 +91,7 @@ private fun Interface(modifier: Modifier = Modifier) {
     }
     var eventDate: Date
     val state = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
+    val activity = (LocalContext.current as? Activity)
 
     Scaffold (
         modifier =
@@ -90,9 +99,12 @@ private fun Interface(modifier: Modifier = Modifier) {
             .fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
+
                 title = { Image(painter = painterResource(R.drawable.logo),"Logo", Modifier.height(70.dp)) },
                 navigationIcon = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {
+                        activity?.finish()
+                    }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
@@ -128,18 +140,26 @@ private fun Interface(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.size(16.dp))
             Button(
                 onClick = {
-                    var db : DatabaseService = DatabaseService()
-                    var startDate : Date
-                    var event : Event = Event()
-                    var milis: Long = state.selectedDateMillis!!
-                    var instant = Instant.ofEpochMilli(milis)
+                    try {
+                        var startDate : Date
+                        var event : Event = Event()
+                        var milis: Long = state.selectedDateMillis!!
+                        var instant = Instant.ofEpochMilli(milis)
 
-                    startDate = Date.from(instant)
-                    event.eventId = System.currentTimeMillis().toString()
-                    event.eventName = eventName.text
-                    event.description = description.text
-                    event.eventDate = startDate
-                    db.saveEvent(event)
+                        startDate = Date.from(instant)
+                        event.eventId = System.currentTimeMillis().toString()
+                        event.eventName = eventName.text
+                        event.description = description.text
+                        event.eventDate = startDate
+                        mainViewModel.databaseService.initFirestore()
+                        mainViewModel.databaseService.saveEvent(event)
+                                //atsargiai gali nesulaukti kol issaugos
+                        activity?.finish()
+                    } catch (e: Exception){
+                        Toast.makeText(context, "Klaida kuriant įvykį.", Toast.LENGTH_SHORT).show()
+                        Log.e(TAG, "Event Creation error")
+                    }
+
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6750A4)),
                 modifier = Modifier

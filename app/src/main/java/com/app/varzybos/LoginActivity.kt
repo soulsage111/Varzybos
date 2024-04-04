@@ -167,15 +167,13 @@ private fun Login(modifier: Modifier = Modifier) {
                 if (isValidEmail(emailAddress.text)) {
                     var auth: FirebaseAuth = Firebase.auth
                     auth.signInWithEmailAndPassword(emailAddress.text, password.text).addOnSuccessListener {
-                        Toast.makeText(context, "Prisijungimas pavyko", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Prisijungimas pavyko", Toast.LENGTH_SHORT).show()
                         //mainViewModel.user.email = emailAddress.text
 
                         FirebaseApp.initializeApp(context)
-                        var databaseService: DatabaseService = DatabaseService()
-                        databaseService.initFirestore()
+                        mainViewModel.databaseService.initFirestore()
 
-                        if (runBlocking {databaseService.isAdmin(emailAddress.text)}){
-                            mainViewModel.databaseService.initFirestore()
+                        if (runBlocking {mainViewModel.databaseService.isAdmin(emailAddress.text)}){
                             mainViewModel.startEventListening()
                             var intent = Intent(localContext , AdminInterfaceActivity::class.java)
                             localContext.startActivity(intent)
