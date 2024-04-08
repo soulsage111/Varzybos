@@ -61,6 +61,15 @@ import org.w3c.dom.Text
 import java.security.AccessController.getContext
 import org.koin.androidx.compose.getViewModel
 import android.app.Application
+import android.text.InputType
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.remember
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -95,6 +104,7 @@ private fun Login(modifier: Modifier = Modifier) {
     var password by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
     }
+    var showPassword by remember { mutableStateOf(value = true) }
     val fontColor = Color.DarkGray;
     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
@@ -139,6 +149,7 @@ private fun Login(modifier: Modifier = Modifier) {
             onValueChange = { password = it },
             placeholder = {Text("Slaptažodis")},
             singleLine = true,
+            visualTransformation = if(showPassword) PasswordVisualTransformation() else VisualTransformation.None,
             modifier = Modifier
                 .fillMaxWidth(0.8f),
             colors = OutlinedTextFieldDefaults.colors(
@@ -159,6 +170,24 @@ private fun Login(modifier: Modifier = Modifier) {
                         textDecoration = TextDecoration.Underline,
                     )
                 )
+            },
+            trailingIcon = {
+                if (showPassword) {
+                    IconButton(onClick = { showPassword = false }) {
+                        Icon(
+                            imageVector = Icons.Filled.Visibility,
+                            contentDescription = "hide_password"
+                        )
+                    }
+                } else {
+                    IconButton(
+                        onClick = { showPassword = true }) {
+                        Icon(
+                            imageVector = Icons.Filled.VisibilityOff,
+                            contentDescription = "hide_password"
+                        )
+                    }
+                }
             }
         )
         Spacer(modifier = Modifier.size(16.dp))

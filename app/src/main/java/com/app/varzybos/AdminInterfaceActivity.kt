@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -14,6 +15,7 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +23,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Favorite
@@ -43,6 +46,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -151,6 +155,13 @@ private fun Interface(modifier: Modifier = Modifier) {
 //        }
 
         EventList(mainViewModel.eventList, values)
+
+            LaunchedEffect(true) {
+                //Do something when List end has been reached
+                Toast.makeText(context, "ei", Toast.LENGTH_SHORT).show()
+            }
+
+        Spacer(modifier = Modifier.padding(100.dp))
         Log.w("Event list:", mainViewModel.eventList.toList().toString())
     }
 }
@@ -202,22 +213,25 @@ private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues
                         }) {
                             Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Menu")
                         }
+                        DropdownMenu(
+                            expanded = isContextMenuVisible,
+                            onDismissRequest = {
+                                isContextMenuVisible = false
+                            },
+                            offset = pressOffset
+                        ) {
+                            DropdownMenuItem(text = { Text("Redaguoti") }, onClick = {
+                                Log.e(ContentValues.TAG, "Pasiclickino")
+                                var intent = Intent(context, AdministratorEventActivity::class.java)
+                                intent.putExtra("eventId", item.eventId)
+                                context.startActivity(intent)
+                            })
+                        }
                     }
                 )
-                DropdownMenu(
-                    expanded = isContextMenuVisible,
-                    onDismissRequest = {
-                        isContextMenuVisible = false
-                    },
-                    offset = pressOffset
-                ) {
-                    DropdownMenuItem(text = { Text("Redaguoti") }, onClick = {
-                        Log.e(ContentValues.TAG, "Pasiclickino")
-                        var intent = Intent(context, AdministratorEventActivity::class.java)
-                        intent.putExtra("eventId", item.eventId)
-                        context.startActivity(intent)
-                    })
-                }
+            }
+            if (item == eventList.last()) {
+                Spacer(modifier = Modifier.padding(35.dp))
             }
         }
 
