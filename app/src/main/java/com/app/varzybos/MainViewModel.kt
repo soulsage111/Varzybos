@@ -15,7 +15,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import com.app.varzybos.data.Event
 import com.app.varzybos.data.User
-import com.google.firebase.database.ServerValue
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.Firebase
 import kotlinx.coroutines.runBlocking
@@ -48,9 +47,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
-    private fun getEventsToList(): List<Event> {
-        var eventList : List<Event> = listOf()
-        var event : Event = Event()
+    private fun getEventsToList(): SnapshotStateList<Event> {
+        var list : SnapshotStateList<Event> = mutableStateListOf()
+
         // var context = getApplication<Application>().applicationContext
         // FirebaseApp.initializeApp(context)
 
@@ -59,46 +58,49 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             var queryResult = out.documents
             queryResult.forEach(){doc ->
                 var map = doc.data
+                var event : Event = Event()
                 if (map != null) {
                     event.eventName = map["eventName"].toString()
                     event.eventId = map["eventId"].toString()
                     event.description = map["description"].toString()
                     val d = map["eventDate"] as com.google.firebase.Timestamp
-                    val dateResult = d.toDate()
-                    event.eventDate = dateResult
+                    event.eventDate = d.toDate()
                     event.registeredUsers = map["registeredUsers"] as List<String>
                 }
-                eventList = eventList + event
+                list.add(event)
             }
 
         }catch (e:Exception){
             Log.e(TAG, "getEventsToList exception", e)
         }
-        return eventList
+        return list
     }
 
     fun getListFromSnapshot(snapshot: QuerySnapshot){
 
     }
 
-
-    fun startEventListening(){
+    fun updateEvents(){
         eventList.clear()
         var listas = getEventsToList()
         listas.forEach { event: Event ->  eventList.add(event)}
-        databaseService.firestore.collection("Events").document().addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.w(ContentValues.TAG, "Listen to events failed; ", e)
-                return@addSnapshotListener
-            }
-            if (snapshot != null && snapshot.exists()) {
-                eventList.clear()
-                getEventsToList().forEach { event: Event ->  eventList.add(event)}
-                Log.d(ContentValues.TAG, "Event data updated")
-            } else {
-                Log.d(ContentValues.TAG, "Event data empty")
-            }
-        }
+    }
+
+     fun getEventFromId(id: String): Event{
+         var eventData: Map<String, Any>?
+         runBlocking {
+             eventData = databaseService.firestore.collection("Events").document(id).get().await().data
+         }
+         var event: Event = Event()
+         if (eventData != null){
+             event.eventName = eventData!!["eventName"].toString()
+             event.eventId = eventData!!["eventId"].toString()
+             event.description = eventData!!["description"].toString()
+             val d = eventData!!["eventDate"] as com.google.firebase.Timestamp
+             event.eventDate = d.toDate()
+             event.registeredUsers = eventData!!["registeredUsers"] as List<String>
+         }
+        return event
     }
 
     operator fun getValue(nothing: Nothing?, property: KProperty<*>): MainViewModel {

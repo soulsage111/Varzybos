@@ -1,14 +1,22 @@
 package com.app.varzybos;
 
 import android.annotation.SuppressLint
+import android.content.ContentValues
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,7 +25,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -32,13 +45,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.varzybos.data.Event
@@ -70,7 +88,7 @@ private fun Interface(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
     mainViewModel.databaseService.initFirestore()
-    mainViewModel.startEventListening()
+    mainViewModel.updateEvents()
 
    // val eventList = mainViewModel.eventList.observeAsState()
 
@@ -89,6 +107,11 @@ private fun Interface(modifier: Modifier = Modifier) {
                     navigationIcon = {
                         IconButton(onClick = { /*TODO*/ }) {
                             Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { mainViewModel.updateEvents() }) {
+                            Icon(imageVector = Icons.Default.Refresh, contentDescription = "Menu")
                         }
                     }
                 )
@@ -110,6 +133,7 @@ private fun Interface(modifier: Modifier = Modifier) {
                             label = { Text(item) },
                             selected = selectedItem == index,
                             onClick = {
+                                mainViewModel.updateEvents()
                                 selectedItem = index
                             })
                     }
@@ -133,15 +157,91 @@ private fun Interface(modifier: Modifier = Modifier) {
 
 @Composable
 private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues){
+    var context = LocalContext.current
+
+//    var selectedItem by rememberSaveable {
+//        mutableStateOf(Event())
+//    }
+
     LazyColumn(modifier = Modifier
         .fillMaxSize()
         .padding(values)) {
-        items(items = eventList.toList(), itemContent = { item ->
-            ListItem(headlineContent = { Text(item.eventName )}, supportingContent = {Text("Eventas")})
+        items(items = eventList.toList()) { item ->
+            //eventItem(event = item)
+            var pressOffset by remember {
+                mutableStateOf(DpOffset.Zero)
+            }
+            var itemHeight by remember {
+                mutableStateOf(0.dp)
+            }
+            Card (modifier = Modifier.pointerInput(true){
+                detectTapGestures(
+                    onPress = {
+                        pressOffset = DpOffset(it.x.toDp(), it.y.toDp())
+                    }
+                )
+            }) {
+                var isContextMenuVisible by rememberSaveable {
+                    mutableStateOf(false)
 
-        })
+                }
+                ListItem(
+                    headlineContent = { Text(item.eventName) },
+                    supportingContent = { Text("Eventas") },
+                    modifier = Modifier.clickable(onClick = {
+//                        Log.e(ContentValues.TAG, "Pasiclickino")
+//                        var intent = Intent(context, AdministratorEventActivity::class.java)
+//                        intent.putExtra("eventId", item.eventId)
+//                        context.startActivity(intent)
+                    }),
+                    trailingContent = {
+                        IconButton(onClick = {
+                            isContextMenuVisible = true
+                            //selectedItem = item
+                            //meniu kazkoks
+                        }) {
+                            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Menu")
+                        }
+                    }
+                )
+                DropdownMenu(
+                    expanded = isContextMenuVisible,
+                    onDismissRequest = {
+                        isContextMenuVisible = false
+                    },
+                    offset = pressOffset
+                ) {
+                    DropdownMenuItem(text = { Text("Redaguoti") }, onClick = {
+                        Log.e(ContentValues.TAG, "Pasiclickino")
+                        var intent = Intent(context, AdministratorEventActivity::class.java)
+                        intent.putExtra("eventId", item.eventId)
+                        context.startActivity(intent)
+                    })
+                }
+            }
+        }
+
     }
 }
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//private fun eventItem(event: Event){
+//    var context = LocalContext.current
+//    Box (modifier = Modifier
+//        .fillMaxWidth()
+//        .clickable(
+//            onClick = {
+//                Log.e(ContentValues.TAG, "Pasiclickino")
+//                var intent = Intent(context, AdministratorEventActivity::class.java)
+//                intent.putExtra("eventId", event.eventId)
+//                context.startActivity(intent)
+//            }
+//        )) {
+//        Text(event.eventName, modifier = Modifier.fillMaxWidth())
+//        Text(event.eventDate.toString(), modifier = Modifier.fillMaxWidth())
+//    }
+//}
+
 
 
 

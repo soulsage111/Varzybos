@@ -48,6 +48,11 @@
             android:exported="true"
             android:theme="@style/Theme.Varzybos">
         </activity>
+        <activity
+            android:name=".AdministratorEventActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Varzybos">
+        </activity>
     </application>
 
 </manifest>

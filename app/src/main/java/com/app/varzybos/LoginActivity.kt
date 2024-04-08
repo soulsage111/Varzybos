@@ -174,7 +174,6 @@ private fun Login(modifier: Modifier = Modifier) {
                         mainViewModel.databaseService.initFirestore()
 
                         if (runBlocking {mainViewModel.databaseService.isAdmin(emailAddress.text)}){
-                            mainViewModel.startEventListening()
                             var intent = Intent(localContext , AdminInterfaceActivity::class.java)
                             localContext.startActivity(intent)
                         } else {
@@ -201,7 +200,7 @@ private fun Login(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.size(1.dp))
         Button(
             onClick = {
-                var intent = Intent(context , RegistrationActivity::class.java)
+                var intent = Intent(localContext , RegistrationActivity::class.java)
                 context.startActivity(intent)
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFFFFF)),
