@@ -154,7 +154,7 @@ private fun Interface(modifier: Modifier = Modifier) {
 //
 //        }
 
-        EventList(mainViewModel.eventList, values)
+        EventList(mainViewModel.eventList, values, mainViewModel)
 
             LaunchedEffect(true) {
                 //Do something when List end has been reached
@@ -167,7 +167,7 @@ private fun Interface(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues){
+private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues, mainViewModel: MainViewModel){
     var context = LocalContext.current
 
 //    var selectedItem by rememberSaveable {
@@ -225,6 +225,13 @@ private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues
                                 var intent = Intent(context, AdministratorEventActivity::class.java)
                                 intent.putExtra("eventId", item.eventId)
                                 context.startActivity(intent)
+                                isContextMenuVisible = false
+                            })
+                            DropdownMenuItem(text = { Text("Ištrinti") }, onClick = {
+                                Log.e(ContentValues.TAG, "Pasiclickino")
+                                mainViewModel.databaseService.removeEvent(item)
+                                mainViewModel.updateEvents()
+                                isContextMenuVisible = false
                             })
                         }
                     }
@@ -237,25 +244,3 @@ private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues
 
     }
 }
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Composable
-//private fun eventItem(event: Event){
-//    var context = LocalContext.current
-//    Box (modifier = Modifier
-//        .fillMaxWidth()
-//        .clickable(
-//            onClick = {
-//                Log.e(ContentValues.TAG, "Pasiclickino")
-//                var intent = Intent(context, AdministratorEventActivity::class.java)
-//                intent.putExtra("eventId", event.eventId)
-//                context.startActivity(intent)
-//            }
-//        )) {
-//        Text(event.eventName, modifier = Modifier.fillMaxWidth())
-//        Text(event.eventDate.toString(), modifier = Modifier.fillMaxWidth())
-//    }
-//}
-
-
-
-

@@ -1,5 +1,6 @@
 package com.app.varzybos
 
+import android.content.ContentValues.TAG
 import android.util.Log
 import com.app.varzybos.data.Event
 import com.google.android.gms.tasks.Continuation
@@ -23,7 +24,7 @@ class DatabaseService {
 
     // Saves or updates event in database
     fun saveEvent(event: Event){
-        val document = if (event.eventId == null || event.eventId.isEmpty()){
+        val document = if (event.eventId.isEmpty()){
             firestore.collection("Events").document()
         } else {
             firestore.collection("Events").document(event.eventId)
@@ -39,6 +40,19 @@ class DatabaseService {
         }
     }
 
+    fun removeEvent(event: Event){
+        val document = firestore.collection("Events").document(event.eventId)
+        event.eventId = document.id
+
+        val result = document.delete()
+        result.addOnSuccessListener {
+            Log.d("DatabaseService", "Successfuly removed event")
+        }
+        result.addOnFailureListener {
+            Log.d("DatabaseService", "Failed to remove event $event")
+        }
+    }
+
     fun initFirestore(){
         firestore = FirebaseFirestore.getInstance()
     }
@@ -47,10 +61,16 @@ class DatabaseService {
 //        return firestore.collection("Admins").document(email).get().await()
 //    }
 suspend fun isAdmin(email : String): Boolean{
+    try {
         var value = firestore.collection("Admins").document(email).get().await()
         var ret = AtomicBoolean(false)
 
         return value.data!!["isAdmin"] as Boolean
+
+    } catch (e : Exception){
+        Log.w(TAG, "Not admin")
+        return false
+    }
         //return value.data!!["isAdmin"] as Boolean
 
 //        value.addOnSuccessListener {

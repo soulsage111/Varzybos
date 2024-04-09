@@ -171,7 +171,7 @@ private fun Interface(){
                         mainViewModel.databaseService.initFirestore()
                         mainViewModel.databaseService.saveEvent(event)
                         //atsargiai gali nesulaukti kol issaugos
-                        activity?.finish()
+                        activity.finish()
                     } catch (e: Exception){
                         Toast.makeText(context, "Klaida kuriant įvykį.", Toast.LENGTH_SHORT).show()
                         Log.e(TAG, "Event Creation error")
