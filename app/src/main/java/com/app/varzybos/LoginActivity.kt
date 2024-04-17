@@ -1,6 +1,6 @@
 package com.app.varzybos
 
-import android.app.PendingIntent.getActivity
+import android.app.Activity
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
@@ -8,7 +8,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -50,18 +49,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.varzybos.ui.theme.VarzybosTheme
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.content.ContextCompat.startActivity
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import org.w3c.dom.Text
-import java.security.AccessController.getContext
-import org.koin.androidx.compose.getViewModel
 import android.app.Application
-import android.text.InputType
+import android.provider.Settings.Global.getString
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -70,14 +66,26 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
+import com.app.varzybos.presentation.sign_in.GoogleAuthUiClient
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.runBlocking
-import org.koin.androidx.compose.inject
 
 @ExperimentalMaterial3Api
 
 class LoginActivity : ComponentActivity() {
+    private val googleAuthUiClient by lazy {
+        GoogleAuthUiClient(
+            context = applicationContext,
+            oneTapClient = Identity.getSignInClient(applicationContext)
+        )
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -86,7 +94,7 @@ class LoginActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Login()
+                    Login(Modifier,  googleAuthUiClient)
                 }
             }
         }
@@ -94,9 +102,8 @@ class LoginActivity : ComponentActivity() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
-private fun Login(modifier: Modifier = Modifier) {
+private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuthUiClient) {
     val image = painterResource(R.drawable.logo)
     var emailAddress by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
@@ -111,6 +118,28 @@ private fun Login(modifier: Modifier = Modifier) {
     val context = mainViewModel.getApplication<Application>().applicationContext
     val localContext = LocalContext.current
 
+    fun getGoogleLoginAuth(): GoogleSignInClient {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .requestIdToken(R.string.web_client_id.toString())
+            .requestId()
+            .requestProfile()
+            .build()
+        return GoogleSignIn.getClient(localContext, gso)
+    }
+
+    val startForResult =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val intent = result.data
+                if (result.data != null) {
+                    val task: Task<GoogleSignInAccount> =
+                        GoogleSignIn.getSignedInAccountFromIntent(intent)
+                    handleSignInResult(task)
+                }
+            }
+        }
+    
     fun isValidEmail(email: String): Boolean {
         return email.matches(emailRegex.toRegex())
     }
@@ -239,9 +268,27 @@ private fun Login(modifier: Modifier = Modifier) {
         ) {
             Text("Registruotis", fontSize = 16.sp, color = Color(0xFF837F88))
         }
+        Spacer(modifier = Modifier.size(1.dp))
+        Button(
+            onClick = {
+                startForResult.launch(getGoogleLoginAuth().signInIntent)
+                runBlocking { googleAuthUiClient.signIn() }
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+            modifier = Modifier
+                .fillMaxWidth(0.3f)
+                .height(70.dp)
+        ) {
+            Image(painterResource(id = R.drawable.sign_in), "Google sign-in", modifier = Modifier
+                .height(46.dp))
+        }
 
         Spacer(modifier = Modifier.size(200.dp))
     }
+}
+
+fun handleSignInResult(task: Task<GoogleSignInAccount>) {
+
 }
 
 

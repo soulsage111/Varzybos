@@ -14,6 +14,7 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import com.app.varzybos.data.Event
+import com.app.varzybos.data.EventTask
 import com.app.varzybos.data.User
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.Firebase
@@ -66,6 +67,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     val d = map["eventDate"] as com.google.firebase.Timestamp
                     event.eventDate = d.toDate()
                     event.registeredUsers = map["registeredUsers"] as List<String>
+                    if (map!!["eventTasks"]!=null){
+                        (map!!["eventTasks"] as List<HashMap<String, String>>).forEach(){task ->
+                            var t = EventTask()
+                            t.taskName = task["taskName"].toString()
+                            t.taskDescription = task["taskDescription"].toString()
+
+                        }
+                    }
                 }
                 list.add(event)
             }
@@ -99,6 +108,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
              val d = eventData!!["eventDate"] as com.google.firebase.Timestamp
              event.eventDate = d.toDate()
              event.registeredUsers = eventData!!["registeredUsers"] as List<String>
+             event.eventTasks = eventData!!["eventTasks"] as List<EventTask>
          }
         return event
     }

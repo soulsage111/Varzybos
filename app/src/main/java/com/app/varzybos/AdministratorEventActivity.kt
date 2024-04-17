@@ -28,12 +28,15 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DisplayMode
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -110,6 +113,10 @@ private fun Interface(){
     }
     val state = rememberDatePickerState(initialDisplayMode = DisplayMode.Input, initialSelectedDateMillis = globalEvent.eventDate.time)
 
+    var isContextMenuVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     Scaffold (
         modifier =
         Modifier
@@ -123,6 +130,27 @@ private fun Interface(){
                         activity?.finish()
                     }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        isContextMenuVisible = true
+                    }) {
+                        Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Back")
+                        DropdownMenu(
+                            expanded = isContextMenuVisible,
+                            onDismissRequest = {
+                                isContextMenuVisible = false
+                            }
+                        ) {
+                            DropdownMenuItem(text = { Text("Redaguoti užduotis") }, onClick = {
+                                Log.e(TAG, "Pasiclickino")
+                                var intent = Intent(context, EventTaskActivity::class.java)
+                                intent.putExtra("eventId", eventId)
+                                context.startActivity(intent)
+                                isContextMenuVisible = false
+                            })
+                        }
                     }
                 }
             )

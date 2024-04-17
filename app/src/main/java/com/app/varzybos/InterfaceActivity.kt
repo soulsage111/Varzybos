@@ -135,11 +135,6 @@ private fun Interface(modifier: Modifier = Modifier) {
 
         EventList(mainViewModel.eventList, values, mainViewModel)
 
-        LaunchedEffect(true) {
-            //Do something when List end has been reached
-            Toast.makeText(context, "ei", Toast.LENGTH_SHORT).show()
-        }
-
         Spacer(modifier = Modifier.padding(100.dp))
         Log.w("Event list:", mainViewModel.eventList.toList().toString())
     }
@@ -164,18 +159,14 @@ private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues
                     }
                 )
             }) {
-                var isContextMenuVisible by rememberSaveable {
-                    mutableStateOf(false)
-
-                }
                 ListItem(
                     headlineContent = { Text(item.eventName) },
                     supportingContent = { Text("Eventas") },
                     modifier = Modifier.clickable(onClick = {
-//                        Log.e(ContentValues.TAG, "Pasiclickino")
-//                        var intent = Intent(context, AdministratorEventActivity::class.java)
-//                        intent.putExtra("eventId", item.eventId)
-//                        context.startActivity(intent)
+                        Log.e(ContentValues.TAG, "Pasiclickino")
+                        var intent = Intent(context, AdministratorEventActivity::class.java)
+                        intent.putExtra("eventId", item.eventId)
+                        context.startActivity(intent)
                     })
                 )
             }

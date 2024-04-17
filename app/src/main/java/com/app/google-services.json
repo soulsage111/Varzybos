@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1066221432192",
+    "firebase_url": "https://varzybos-5ddd3-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "varzybos-5ddd3",
+    "storage_bucket": "varzybos-5ddd3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1066221432192:android:2a41395900053a294fe565",
+        "android_client_info": {
+          "package_name": "com.app.varzybos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1066221432192-s3h8j0lc380tkmfda56ds8q0erd75vs4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.varzybos",
+            "certificate_hash": "a242041c8a920d588d91429fb164eb7a279570fc"
+          }
+        },
+        {
+          "client_id": "1066221432192-qvp6n28knqvev2kajk542ntsc5tir0ie.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGD074cfcs5NREYDoaYcaB1HVSxcNV0EE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1066221432192-qvp6n28knqvev2kajk542ntsc5tir0ie.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
