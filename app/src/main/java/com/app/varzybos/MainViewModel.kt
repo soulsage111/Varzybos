@@ -68,7 +68,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     event.eventDate = d.toDate()
                     event.registeredUsers = map["registeredUsers"] as List<String>
                     if (map!!["eventTasks"]!=null){
-                        (map!!["eventTasks"] as List<HashMap<String, String>>).forEach(){task ->
+                        var tasks = ArrayList<Map<String, String>>()
+                        try {
+                            tasks = map!!["eventTasks"] as ArrayList<Map<String, String>>
+                        }catch (e: Exception){
+                            Log.e(TAG,"Event task mapping error", e)
+                        }
+
+                        tasks.forEach(){task ->
                             var t = EventTask()
                             t.taskName = task["taskName"].toString()
                             t.taskDescription = task["taskDescription"].toString()
@@ -108,7 +115,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
              val d = eventData!!["eventDate"] as com.google.firebase.Timestamp
              event.eventDate = d.toDate()
              event.registeredUsers = eventData!!["registeredUsers"] as List<String>
-             event.eventTasks = eventData!!["eventTasks"] as List<EventTask>
+             if (eventData!!["eventTasks"]!=null){
+                 var tasks = ArrayList<Map<String, String>>()
+                 try {
+                     tasks = eventData!!["eventTasks"] as ArrayList<Map<String, String>>
+                 }catch (e: Exception){
+                    Log.e(TAG,"Event task mapping error", e)
+                 }
+
+                 tasks.forEach(){task ->
+                     var t = EventTask()
+                     t.taskName = task["taskName"].toString()
+                     t.taskDescription = task["taskDescription"].toString()
+                     event.eventTasks.add(t)
+                 }
+             }
          }
         return event
     }

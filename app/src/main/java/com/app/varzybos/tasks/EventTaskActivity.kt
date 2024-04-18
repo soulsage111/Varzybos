@@ -1,4 +1,4 @@
-package com.app.varzybos;
+package com.app.varzybos.tasks;
 
 
 import android.app.Activity
@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -16,10 +17,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,12 +32,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.app.varzybos.DatabaseService
+import com.app.varzybos.MainViewModel
+import com.app.varzybos.R
 import com.app.varzybos.data.Event
 import com.app.varzybos.data.EventTask
 import com.app.varzybos.ui.theme.VarzybosTheme
@@ -70,10 +78,11 @@ class EventTaskActivity: ComponentActivity() {
                     var globalEvent = eventId?.let { mainViewModel.getEventFromId(it) }!!
                     val context = LocalContext.current
 
-                    var taskList: List<EventTask> = globalEvent.eventTasks
+                    var taskList by remember{ mutableStateOf(globalEvent.eventTasks) }
 
                     UpdateEvent(newTask, globalEvent, mainViewModel.databaseService) {
                         globalEvent = eventId?.let { mainViewModel.getEventFromId(it) }!!
+                        taskList = globalEvent.eventTasks
                     }
 
                     Scaffold (
@@ -82,9 +91,14 @@ class EventTaskActivity: ComponentActivity() {
                             .fillMaxSize(),
                         topBar = {
                             CenterAlignedTopAppBar(
-                                title = { Text(globalEvent.eventName) },
-                                actions = {
-                                    Image(painter = painterResource(R.drawable.logo),"Logo", Modifier.height(70.dp))
+
+                                title = { Image(painter = painterResource(R.drawable.logo),"Logo", Modifier.height(70.dp)) },
+                                navigationIcon = {
+                                    IconButton(onClick = {
+                                        activity.finish()
+                                    }) {
+                                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                                    }
                                 }
                             )
                         },
@@ -99,17 +113,10 @@ class EventTaskActivity: ComponentActivity() {
                             }
                         }
                     ){values ->
-                        LazyColumn(Modifier.padding(values)) {
-                            items(taskList){ task ->
-                                Card(onClick = {
-                                    //redaguoti paspausta uzd
-                                }) {
-                                    ListItem(
-                                        headlineContent = { Text(task.taskName) },
-                                        supportingContent = { Text(task.taskDescription)}
-                                    )
-                                }
-                            }
+                        ListTasks(values, taskList) { name: String ->
+                            var intent = Intent(context, EventTaskCreateActivity::class.java)
+                            intent.putExtra("name", name)
+                            taskLauncher.launch(intent)
                         }
                         Spacer(modifier = Modifier.padding(100.dp))
                     }
@@ -119,6 +126,11 @@ class EventTaskActivity: ComponentActivity() {
     }
 }
 
+
+fun callIntentForEdit(name: String){
+
+}
+
 @Composable
 fun UpdateEvent(
     newTask: EventTask,
@@ -126,7 +138,26 @@ fun UpdateEvent(
     databaseService: DatabaseService,
     function: () -> Unit
 ) {
-    globalEvent.eventTasks = globalEvent.eventTasks + newTask
-    databaseService.saveEvent(globalEvent)
-    function
+    if (newTask.taskName!=""){
+        globalEvent.eventTasks.add(newTask)
+        databaseService.saveEvent(globalEvent)
+        function()
+    }
+}
+
+@Composable
+fun ListTasks(values: PaddingValues, taskList: ArrayList<EventTask>, function: (name: String) -> Unit) {
+    LazyColumn(Modifier.padding(values)) {
+        items(taskList){ task ->
+            Card(onClick = {
+                function(task.taskName)
+                //redaguoti paspausta uzd
+            }) {
+                ListItem(
+                    headlineContent = { Text(task.taskName) },
+                    supportingContent = { Text(task.taskDescription)}
+                )
+            }
+        }
+    }
 }

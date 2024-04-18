@@ -15,7 +15,7 @@ class Event(){
     var description: String = ""
     var eventDate: Date = Date()
     var registeredUsers: List<String> = listOf()
-    var eventTasks: List<EventTask> = listOf()
+    var eventTasks: ArrayList<EventTask> = arrayListOf()
     //var thumbnail : ImageBitmap = Bitmap.createBitmap(200, 200, Bitmap.Config.RGB_565).asImageBitmap()
 
     class Event(eventName: String, description: String, eventDate: Date){

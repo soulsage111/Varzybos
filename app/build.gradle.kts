@@ -85,9 +85,9 @@ dependencies {
     implementation("io.insert-koin:koin-androidx-compose:3.1.4")
     implementation("com.google.android.gms:play-services-location:19.0.1")
     implementation("com.google.android.gms:play-services-maps:18.0.2")
-    implementation("androidx.compose.material:material-icons-extended:1.3.1")
+    implementation("androidx.compose.material:material-icons-extended:1.6.6")
     implementation("io.coil-kt:coil-compose:2.6.0")
-    api("androidx.activity:activity-ktx:1.8.2")
+    api("androidx.activity:activity-ktx:1.9.0")
     api("androidx.fragment:fragment-ktx:1.6.2")
     val nav_version = "2.7.6"
     // Kotlin

@@ -53,22 +53,27 @@
             android:theme="@style/Theme.Varzybos">
         </activity>
         <activity
-            android:name=".EventCreationActivity"
+            android:name=".events.EventCreationActivity"
             android:exported="true"
             android:theme="@style/Theme.Varzybos">
         </activity>
         <activity
-            android:name=".AdministratorEventActivity"
+            android:name=".events.AdministratorEventActivity"
             android:exported="true"
             android:theme="@style/Theme.Varzybos">
         </activity>
         <activity
-            android:name=".EventTaskCreateActivity"
+            android:name=".tasks.EventTaskCreateActivity"
             android:exported="true"
             android:theme="@style/Theme.Varzybos">
         </activity>
         <activity
-            android:name=".EventTaskActivity"
+            android:name=".tasks.EventTaskActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Varzybos">
+        </activity>
+        <activity
+            android:name=".events.EventActivity"
             android:exported="true"
             android:theme="@style/Theme.Varzybos">
         </activity>

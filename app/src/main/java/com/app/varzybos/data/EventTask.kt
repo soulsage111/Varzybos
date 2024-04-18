@@ -3,6 +3,7 @@ package com.app.varzybos.data
 import android.app.ActivityManager.TaskDescription
 
 data class EventTask(
-    var taskName: String ="",
+    var taskId : String = "",
+    var taskName: String = "",
     var taskDescription: String = ""
 )
