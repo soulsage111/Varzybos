@@ -44,7 +44,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -53,8 +52,6 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import android.app.Application
-import android.provider.Settings.Global.getString
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -67,14 +64,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.app.varzybos.presentation.sign_in.GoogleAuthUiClient
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.runBlocking
 
 @ExperimentalMaterial3Api
@@ -109,13 +104,12 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
         mutableStateOf(TextFieldValue(""))
     }
     var password by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
+        mutableStateOf(TextFieldValue("password"))
     }
     var showPassword by remember { mutableStateOf(value = true) }
     val fontColor = Color.DarkGray;
     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
-    val context = mainViewModel.getApplication<Application>().applicationContext
     val localContext = LocalContext.current
 
     fun getGoogleLoginAuth(): GoogleSignInClient {
@@ -225,10 +219,9 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
                 if (isValidEmail(emailAddress.text)) {
                     var auth: FirebaseAuth = Firebase.auth
                     auth.signInWithEmailAndPassword(emailAddress.text, password.text).addOnSuccessListener {
-                        Toast.makeText(context, "Prisijungimas pavyko", Toast.LENGTH_SHORT).show()
                         //mainViewModel.user.email = emailAddress.text
 
-                        FirebaseApp.initializeApp(context)
+                        FirebaseApp.initializeApp(localContext)
                         mainViewModel.databaseService.initFirestore()
 
                         if (runBlocking {mainViewModel.databaseService.isAdmin(emailAddress.text)}){
@@ -241,11 +234,12 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
 
                     }.addOnFailureListener{e ->
                         Log.w(TAG, "Authorisation failure; ", e)
+                        Toast.makeText(localContext, "Prisijungimas nepavyko", Toast.LENGTH_SHORT).show()
                     }
                 }
                 else {
                     Log.w(TAG, "Email not valid")
-                    Toast.makeText(context, "El. pašto adresas netinkamas", Toast.LENGTH_SHORT).show() // in Activity
+                    Toast.makeText(localContext, "El. pašto adresas netinkamas", Toast.LENGTH_SHORT).show() // in Activity
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6750A4)),
@@ -259,7 +253,7 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
         Button(
             onClick = {
                 var intent = Intent(localContext , RegistrationActivity::class.java)
-                context.startActivity(intent)
+                localContext.startActivity(intent)
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFFFFF)),
             modifier = Modifier

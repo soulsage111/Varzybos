@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -43,7 +45,10 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,8 +74,12 @@ import com.app.varzybos.ui.theme.VarzybosTheme
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Date
+import java.util.UUID
 
 class EventCreationActivity: ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -106,10 +115,17 @@ class EventCreationActivity: ComponentActivity() {
                     var description by rememberSaveable(stateSaver = TextFieldValue.Saver) {
                         mutableStateOf(TextFieldValue(""))
                     }
+                    var eventTime by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+                    mutableStateOf(TextFieldValue(""))
+                    }
+                    val stateDate = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
                     var eventDate: Date
-                    val state = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
                     val activity = (LocalContext.current as Activity)
+                    val regex = "([01]?[0-9]|2[0-3]):[0-5][0-9]"
 
+                    fun isValidTime(time: String): Boolean {
+                        return time.matches(regex.toRegex())
+                    }
 
                     Scaffold (
                         modifier =
@@ -132,16 +148,20 @@ class EventCreationActivity: ComponentActivity() {
                     ){pad->
                         Column(modifier = Modifier
                             .fillMaxSize()
-                            .padding(pad),
+                            .padding(pad)
+                            .verticalScroll(rememberScrollState()),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ){
                             Spacer(modifier = Modifier.size(16.dp))
 //                            ImageDisplay(bitmap, {
 //                                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
 //                            }, resources)
-                            Box(modifier = Modifier.width(100.dp).height(100.dp).clickable{
-                                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                            }) {
+                            Box(modifier = Modifier
+                                .width(100.dp)
+                                .height(100.dp)
+                                .clickable {
+                                    pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                                }) {
                                 AsyncImage(
                                     model = imageUri,
                                     contentDescription = null,
@@ -158,7 +178,16 @@ class EventCreationActivity: ComponentActivity() {
                                     unfocusedTextColor = Color.DarkGray
                                 ))
                             Spacer(modifier = Modifier.size(16.dp))
-                            DatePicker(state = state, headline = null, title = null, showModeToggle = false)
+                            DatePicker(state = stateDate, headline = null, title = null, showModeToggle = false)
+                            Spacer(modifier = Modifier.size(16.dp))
+                            OutlinedTextField(value = eventTime,
+                                onValueChange = {eventTime = it},
+                                placeholder = { Text("00:00")},
+                                singleLine = true,
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = Color.DarkGray,
+                                    unfocusedTextColor = Color.DarkGray
+                                ))
                             OutlinedTextField(value = description,
                                 onValueChange = {description = it},
                                 placeholder = { Text("Aprašymas")},
@@ -167,34 +196,46 @@ class EventCreationActivity: ComponentActivity() {
                                     focusedTextColor = Color.DarkGray,
                                     unfocusedTextColor = Color.DarkGray
                                 ),
-                                modifier = Modifier.weight(1f))
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(200.dp))
                             Spacer(modifier = Modifier.size(16.dp))
                             Button(
                                 onClick = {
                                     try {
                                         var startDate : Date
                                         var event : Event = Event()
-                                        var milis: Long = state.selectedDateMillis!!
-                                        var instant = Instant.ofEpochMilli(milis)
+                                        var milis: Long = 0
+                                        if (isValidTime(eventTime.text)){
+                                            val dateFormat = SimpleDateFormat("HH:mm")
+                                            val parsed = dateFormat.parse(eventTime.text)
 
-                                        startDate = Date.from(instant)
-                                        event.eventId = System.currentTimeMillis().toString()
-                                        event.eventName = eventName.text
-                                        event.description = description.text
-                                        event.eventDate = startDate
-                                        if (bitmap != null) {
-                                            //event.thumbnail = bitmap.asImageBitmap()
+                                            if (stateDate.selectedDateMillis!=null){
+                                                milis = stateDate.selectedDateMillis!! + parsed.toInstant().toEpochMilli()
+                                            }
+                                            var instant = Instant.ofEpochMilli(milis)
+
+                                            startDate = Date.from(instant)
+                                            event.eventId = UUID.randomUUID().toString()
+                                            event.eventName = eventName.text
+                                            event.description = description.text
+                                            event.eventDate = startDate
+                                            if (bitmap != null) {
+                                                //event.thumbnail = bitmap.asImageBitmap()
+                                            }
+
+                                            val storageRef = FirebaseStorage.getInstance().getReference("images/"+event.eventId)
+                                            runBlocking {
+                                                storageRef.putFile(imageUri).await()
+                                            }
+
+                                            mainViewModel.databaseService.initFirestore()
+                                            mainViewModel.databaseService.saveEvent(event)
+                                            //atsargiai gali nesulaukti kol issaugos
+                                            activity?.finish()
+
                                         }
 
-                                        val storageRef = FirebaseStorage.getInstance().getReference("images/"+event.eventId)
-                                        runBlocking {
-                                            storageRef.putFile(imageUri).await()
-                                        }
-
-                                        mainViewModel.databaseService.initFirestore()
-                                        mainViewModel.databaseService.saveEvent(event)
-                                        //atsargiai gali nesulaukti kol issaugos
-                                        activity?.finish()
                                     } catch (e: Exception){
                                         Toast.makeText(context, "Klaida kuriant įvykį.", Toast.LENGTH_SHORT).show()
                                         Log.e(TAG, "Event Creation error", e)
@@ -226,7 +267,10 @@ fun ImageDisplay(bitmap : Bitmap?, onClick: () -> Unit, resources: Resources){
         Log.e(TAG, "ImageDisplay error. Bitmap not set.")
         i = BitmapFactory.decodeResource(resources, R.drawable.img).asImageBitmap()
     }
-    Box(modifier = Modifier.width(100.dp).height(100.dp).clickable{onClick()}){
+    Box(modifier = Modifier
+        .width(100.dp)
+        .height(100.dp)
+        .clickable { onClick() }){
         Image(bitmap = i, contentDescription = "Event image")
 
     }

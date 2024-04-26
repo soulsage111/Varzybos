@@ -77,6 +77,16 @@
             android:exported="true"
             android:theme="@style/Theme.Varzybos">
         </activity>
+        <activity
+            android:name=".tasks.EventTaskAnswerActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Varzybos">
+        </activity>
+        <activity
+            android:name=".tasks.StartEventTaskActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Varzybos">
+        </activity>
     </application>
 
 </manifest>

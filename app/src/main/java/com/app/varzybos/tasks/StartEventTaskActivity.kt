@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -44,24 +45,22 @@ import com.app.varzybos.MainViewModel
 import com.app.varzybos.R
 import com.app.varzybos.data.Event
 import com.app.varzybos.data.EventTask
+import com.app.varzybos.events.AdministratorEventActivity
 import com.app.varzybos.ui.theme.VarzybosTheme
-import java.util.UUID
 
-class EventTaskActivity: ComponentActivity() {
+class StartEventTaskActivity: ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         var newTask by mutableStateOf(EventTask())
         var name = ""
-        var description = ""
-        var id = ""
+        var answer = ""
         var taskLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val data: Intent? = result.data
                 if (data != null){
                     name = data.getStringExtra("name")!!
-                    description = data.getStringExtra("description")!!
-                    newTask = EventTask(taskId = UUID.randomUUID().toString(),taskName = name, taskDescription = description)
+                    answer = data.getStringExtra("answer")!!
                 }
 
             }
@@ -103,21 +102,14 @@ class EventTaskActivity: ComponentActivity() {
                                     }
                                 }
                             )
-                        },
-                        bottomBar = {
-                            Button(onClick = {
-                                var intent = Intent(context, EventTaskCreateActivity::class.java)
-                                taskLauncher.launch(intent)
-
-                                //prideti uzduoti
-                            }) {
-                                Image(Icons.Default.Add, contentDescription ="")
-                            }
                         }
                     ){values ->
-                        ListTasks(values, taskList) { name: String ->
-                            var intent = Intent(context, EventTaskCreateActivity::class.java)
-                            intent.putExtra("name", name)
+                        ListTasks(values, taskList) { task: EventTask ->
+                            var intent = Intent(context, EventTaskAnswerActivity::class.java)
+                            intent.putExtra("eventId", globalEvent.eventId)
+                            intent.putExtra("taskId", task.taskId)
+                            intent.putExtra("taskDescription", task.taskDescription)
+                            intent.putExtra("taskName", task.taskName)
                             taskLauncher.launch(intent)
                         }
                         Spacer(modifier = Modifier.padding(100.dp))
@@ -143,16 +135,17 @@ private fun UpdateEvent(
 }
 
 @Composable
-private fun ListTasks(values: PaddingValues, taskList: ArrayList<EventTask>, function: (name: String) -> Unit) {
+private fun ListTasks(values: PaddingValues, taskList: ArrayList<EventTask>, function: (name: EventTask) -> Unit) {
     LazyColumn(Modifier.padding(values)) {
         items(taskList){ task ->
             Card(onClick = {
-                function(task.taskName)
+                function(task)
                 //redaguoti paspausta uzd
             }) {
                 ListItem(
                     headlineContent = { Text(task.taskName) },
-                    supportingContent = { Text(task.taskDescription)}
+                    supportingContent = { Text(task.taskDescription)},
+                    trailingContent = {Icon(imageVector = Icons.AutoMirrored.Default.ArrowForwardIos, contentDescription = "Back")}
                 )
             }
         }

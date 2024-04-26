@@ -11,7 +11,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -48,10 +47,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.app.varzybos.data.Event
-import com.app.varzybos.events.AdministratorEventActivity
+import com.app.varzybos.data.UserSingleton
 import com.app.varzybos.events.EventActivity
 import com.app.varzybos.ui.theme.VarzybosTheme
+import com.google.firebase.auth.FirebaseAuth
 
 @ExperimentalMaterial3Api
 
@@ -80,9 +83,17 @@ private fun Interface(modifier: Modifier = Modifier) {
     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
     mainViewModel.databaseService.initFirestore()
     mainViewModel.updateEvents()
+    FirebaseAuth.getInstance().currentUser?.let { it1 -> UserSingleton.initialize(it1) }
 
     var selectedItem by remember { mutableIntStateOf(0) }
-    val items = listOf("Visi renginiai", "Mano renginiai", "Pranešimai")
+    val items = listOf(
+        Screen.Renginiai,
+        Screen.ManoRenginiai,
+        Screen.Pranesimai
+    )
+
+    var navController = rememberNavController()
+
 
     Scaffold (
         modifier =
@@ -108,22 +119,26 @@ private fun Interface(modifier: Modifier = Modifier) {
             ) {
                 items.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        icon = { Icon(Icons.Filled.Favorite, contentDescription = item) },
-                        label = { Text(item) },
+                        icon = { Icon(Icons.Filled.Favorite, contentDescription = item.route) },
+                        label = { Text(item.route) },
                         selected = selectedItem == index,
                         onClick = {
                             mainViewModel.updateEvents()
                             selectedItem = index
+                            navController.navigate(item.route)
                         })
                 }
             }
         }
     ){values ->
-
-        EventList(mainViewModel.eventList, values, mainViewModel)
-
-        Spacer(modifier = Modifier.padding(100.dp))
-        Log.w("Event list:", mainViewModel.eventList.toList().toString())
+        NavHost(navController = navController, startDestination = Screen.Renginiai.route ){
+            composable(route = Screen.Renginiai.route){
+                EventList(mainViewModel.eventList, values, mainViewModel)
+            }
+            composable(route = Screen.ManoRenginiai.route){
+                EventList(mainViewModel.userEventList, values, mainViewModel)
+            }
+        }
     }
 }
 
@@ -156,9 +171,6 @@ private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues
                         context.startActivity(intent)
                     })
                 )
-            }
-            if (item == eventList.last()) {
-                Spacer(modifier = Modifier.padding(35.dp))
             }
         }
 

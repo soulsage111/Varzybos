@@ -5,6 +5,7 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -64,143 +65,134 @@ class RegistrationActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Register()
+                    val image = painterResource(R.drawable.logo)
+                    var emailAddress by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+                        mutableStateOf(TextFieldValue(""))
+                    }
+                    var password by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+                        mutableStateOf(TextFieldValue(""))
+                    }
+                    var name by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+                        mutableStateOf(TextFieldValue(""))
+                    }
+                    var surname by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+                        mutableStateOf(TextFieldValue(""))
+                    }
+                    val fontColor = Color.DarkGray;
+                    val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
+                    val context = LocalContext.current
+
+                    fun isValidEmail(email: String): Boolean {
+                        return email.matches(emailRegex.toRegex())
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .width(360.dp)
+                            .height(800.dp)
+                            .background(color = Color(0xFFFFFFFF)),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ){
+                        Image(
+                            painter = image,
+                            contentDescription = null,
+                            contentScale = ContentScale.FillBounds,
+                            modifier = Modifier
+                                .width(168.dp)
+                                .height(187.dp)
+                        )
+                        OutlinedTextField(value = name,
+                            onValueChange = {name = it},
+                            placeholder = { Text("Vardas")},
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = fontColor,
+                                unfocusedTextColor = fontColor
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f))
+                        Spacer(modifier = Modifier.size(16.dp))
+                        OutlinedTextField(value = surname,
+                            onValueChange = {surname = it},
+                            placeholder = { Text("Pavardė")},
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = fontColor,
+                                unfocusedTextColor = fontColor
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f))
+                        Spacer(modifier = Modifier.size(16.dp))
+                        OutlinedTextField(
+                            value = emailAddress,
+                            onValueChange = { emailAddress = it },
+                            placeholder = {Text("El. paštas")},
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = fontColor,
+                                unfocusedTextColor = fontColor
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f),
+                        )
+                        Spacer(modifier = Modifier.size(16.dp))
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = { password = it },
+                            placeholder = {Text("Slaptažodis")},
+                            singleLine = true,
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = fontColor,
+                                unfocusedTextColor = fontColor
+                            )
+                        )
+                        Spacer(modifier = Modifier.size(16.dp))
+                        Button(
+                            onClick = {
+                                if (isValidEmail(emailAddress.text)) {
+                                    var auth: FirebaseAuth = Firebase.auth
+                                    if(auth.createUserWithEmailAndPassword(emailAddress.text, password.text).isSuccessful){
+                                        Log.d(TAG, "registerInWithEmail:success")
+                                        Toast.makeText(context, "Registracija sėkminga", Toast.LENGTH_SHORT).show()
+                                        finish()
+                                    } else {
+                                        Toast.makeText(context, "Registracija nepavyko", Toast.LENGTH_SHORT).show()
+                                        Log.w(TAG, "registerInWithEmail:failure")
+                                    }
+
+                                }
+                                else {
+                                    Toast.makeText(context, "Netinkamas el. pašto adresas", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6750A4)),
+                            modifier = Modifier
+                                .fillMaxWidth(0.6f)
+                                .height(46.dp)
+                        ) {
+                            Text("Registruotis", fontSize = 16.sp, color = Color.White)
+                        }
+                        Spacer(modifier = Modifier.size(1.dp))
+                        Button(
+                            onClick = {
+                                finish()
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFFFFF)),
+                            modifier = Modifier
+                                .fillMaxWidth(0.6f)
+                                .height(46.dp)
+                        ) {
+                            Text("Gryžti", fontSize = 16.sp, color = Color(0xFF837F88))
+                        }
+
+                        Spacer(modifier = Modifier.size(200.dp))
+                    }
                 }
             }
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
-@Composable
-private fun Register(modifier: Modifier = Modifier) {
-    val image = painterResource(R.drawable.logo)
-    var emailAddress by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
-    var password by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
-    var name by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
-    var surname by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
-    val fontColor = Color.DarkGray;
-    val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
-    val context = LocalContext.current
-
-    fun isValidEmail(email: String): Boolean {
-        return email.matches(emailRegex.toRegex())
-    }
-
-    Column(
-        modifier = Modifier
-            .width(360.dp)
-            .height(800.dp)
-            .background(color = Color(0xFFFFFFFF)),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ){
-        Image(
-            painter = image,
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier
-                .width(168.dp)
-                .height(187.dp)
-        )
-        OutlinedTextField(value = name,
-            onValueChange = {name = it},
-            placeholder = { Text("Vardas")},
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = fontColor,
-                unfocusedTextColor = fontColor
-            ),
-            modifier = Modifier
-                .fillMaxWidth(0.8f))
-        Spacer(modifier = Modifier.size(16.dp))
-        OutlinedTextField(value = surname,
-            onValueChange = {surname = it},
-            placeholder = { Text("Pavardė")},
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = fontColor,
-                unfocusedTextColor = fontColor
-            ),
-            modifier = Modifier
-                .fillMaxWidth(0.8f))
-        Spacer(modifier = Modifier.size(16.dp))
-        OutlinedTextField(
-            value = emailAddress,
-            onValueChange = { emailAddress = it },
-            placeholder = {Text("El. paštas")},
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = fontColor,
-                unfocusedTextColor = fontColor
-            ),
-            modifier = Modifier
-                .fillMaxWidth(0.8f),
-            )
-        Spacer(modifier = Modifier.size(16.dp))
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            placeholder = {Text("Slaptažodis")},
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth(0.8f),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = fontColor,
-                unfocusedTextColor = fontColor
-            )
-        )
-        Spacer(modifier = Modifier.size(16.dp))
-        Button(
-            onClick = {
-                if (isValidEmail(emailAddress.text)) {
-                    var auth: FirebaseAuth = Firebase.auth
-                    if(auth.createUserWithEmailAndPassword(emailAddress.text, password.text).isSuccessful){
-                        Log.d(TAG, "registerInWithEmail:success")
-                    } else {
-                        Log.w(TAG, "registerInWithEmail:failure")
-                        //ToastDisplay(name = "samdiamdia")
-                        //Toast.makeText(this, "Prisijungimas nepavyko", Toast.LENGTH_SHORT).show() // in Activity
-
-                    }
-
-                }
-                else {
-
-                }
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6750A4)),
-            modifier = Modifier
-                .fillMaxWidth(0.6f)
-                .height(46.dp)
-        ) {
-            Text("Registruotis", fontSize = 16.sp, color = Color.White)
-        }
-        Spacer(modifier = Modifier.size(1.dp))
-        Button(
-            onClick = {
-                //val ctx = LocalContext.current
-                //Activity.finish()
-                //RegistrationActivity::this.finish()
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFFFFF)),
-            modifier = Modifier
-                .fillMaxWidth(0.6f)
-                .height(46.dp)
-        ) {
-            Text("Gryžti", fontSize = 16.sp, color = Color(0xFF837F88))
-        }
-
-        Spacer(modifier = Modifier.size(200.dp))
     }
 }
 
