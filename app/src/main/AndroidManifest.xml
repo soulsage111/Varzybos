@@ -87,6 +87,16 @@
             android:exported="true"
             android:theme="@style/Theme.Varzybos">
         </activity>
+        <activity
+            android:name=".events.ControlEventActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Varzybos">
+        </activity>
+        <activity
+            android:name=".tasks.AdministratorEventTaskActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Varzybos">
+        </activity>
     </application>
 
 </manifest>

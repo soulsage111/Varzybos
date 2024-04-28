@@ -87,6 +87,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.0.2")
     implementation("androidx.compose.material:material-icons-extended:1.6.6")
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("androidx.compose.runtime:runtime-livedata:1.0.0-beta01")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha13")
     api("androidx.activity:activity-ktx:1.9.0")
     api("androidx.fragment:fragment-ktx:1.6.2")
     val nav_version = "2.7.6"

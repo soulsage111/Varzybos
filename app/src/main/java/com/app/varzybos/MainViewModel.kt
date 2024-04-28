@@ -23,7 +23,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var eventList: SnapshotStateList<Event> = mutableStateListOf()
     var userList: SnapshotStateList<User> = mutableStateListOf()
     var userEventList: SnapshotStateList<Event> = mutableStateListOf()
+    var currentUserList: SnapshotStateList<User> = mutableStateListOf()
     var databaseService: DatabaseService = DatabaseService()
+
 
     fun getDateTime(s: String): String? {
         try {
@@ -52,6 +54,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     event.eventName = map["eventName"].toString()
                     event.eventId = map["eventId"].toString()
                     event.description = map["description"].toString()
+                    if (map["closed"] != null) {
+                        event.closed = map["closed"] as Boolean
+                    } else {
+                        event.closed = false
+                    }
                     val d = map["eventDate"] as com.google.firebase.Timestamp
                     event.eventDate = d.toDate()
                     event.registeredUsers = map["registeredUsers"] as ArrayList<String>
@@ -128,6 +135,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         listas.forEach { user: User -> userList.add(user) }
     }
 
+    fun getUsersFromList(userListForEvent: ArrayList<String>): SnapshotStateList<User> {
+        var list: SnapshotStateList<User> = mutableStateListOf()
+
+        try {
+            var out = runBlocking { databaseService.firestore.collection("UserInfo").get().await() }
+            var queryResult = out.documents
+            queryResult.forEach() { doc ->
+                var map = doc.data
+                var user = User()
+                if (map != null) {
+                    user.name = map["name"].toString()
+                    user.surname = map["surname"].toString()
+                    user.email = map["email"].toString()
+                    user.id = map["id"].toString()
+
+                }
+                if (userListForEvent.contains(user.id)) {
+                    list.add(user)
+                }
+
+            }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "getUsersFromList exception", e)
+        }
+        return list
+    }
+
+
     fun getEventFromId(id: String): Event {
         var eventData: Map<String, Any>?
         runBlocking {
@@ -139,6 +175,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             event.eventName = eventData!!["eventName"].toString()
             event.eventId = eventData!!["eventId"].toString()
             event.description = eventData!!["description"].toString()
+            if (eventData!!["closed"] != null) {
+                event.closed = eventData!!["closed"] as Boolean
+            } else {
+                event.closed = false
+            }
             val d = eventData!!["eventDate"] as com.google.firebase.Timestamp
             event.eventDate = d.toDate()
             event.registeredUsers = eventData!!["registeredUsers"] as ArrayList<String>

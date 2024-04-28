@@ -68,7 +68,10 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
 import java.time.format.TextStyle
+import java.util.Calendar
+import java.util.Locale
 
 
 class EventActivity: ComponentActivity() {
@@ -158,7 +161,7 @@ class EventActivity: ComponentActivity() {
                                 Column (horizontalAlignment = Alignment.CenterHorizontally){
                                     Text(globalEvent.eventName, Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = 30.sp)
 
-                                    Text(globalEvent.eventDate.toString(), Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                                    Text(com.app.varzybos.chat.millisToDate(globalEvent.eventDate.toInstant().toEpochMilli()), Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
 
                                     Column(Modifier.fillMaxWidth().padding(20.dp)){
                                         Text("Aprašymas:", fontWeight = FontWeight.Bold)

@@ -75,6 +75,7 @@ import com.app.varzybos.data.Event
 import com.app.varzybos.data.User
 import com.app.varzybos.data.UserSingleton
 import com.app.varzybos.events.AdministratorEventActivity
+import com.app.varzybos.events.ControlEventActivity
 import com.app.varzybos.events.EventCreationActivity
 import com.app.varzybos.ui.theme.VarzybosTheme
 import com.google.firebase.auth.FirebaseAuth
@@ -279,10 +280,9 @@ private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues
                     headlineContent = { Text(item.eventName) },
                     supportingContent = { Text("Eventas") },
                     modifier = Modifier.clickable(onClick = {
-//                        Log.e(ContentValues.TAG, "Pasiclickino")
-//                        var intent = Intent(context, AdministratorEventActivity::class.java)
-//                        intent.putExtra("eventId", item.eventId)
-//                        context.startActivity(intent)
+                        val intent = Intent(context, ControlEventActivity::class.java)
+                        intent.putExtra("eventId", item.eventId)
+                        context.startActivity(intent)
                     }),
                     trailingContent = {
                         IconButton(onClick = {

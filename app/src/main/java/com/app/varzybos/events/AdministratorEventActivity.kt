@@ -167,11 +167,15 @@ class AdministratorEventActivity: ComponentActivity() {
                                         var milis: Long = state.selectedDateMillis!!
                                         var instant = Instant.ofEpochMilli(milis)
 
+                                        globalEvent = mainViewModel.getEventFromId(eventId)
+
                                         startDate = Date.from(instant)
                                         event.eventId = globalEvent.eventId
                                         event.eventName = eventName.text
                                         event.description = description.text
                                         event.eventDate = startDate
+                                        event.registeredUsers = globalEvent.registeredUsers
+                                        event.eventTasks = globalEvent.eventTasks
                                         mainViewModel.databaseService.initFirestore()
                                         mainViewModel.databaseService.saveEvent(event)
                                         //atsargiai gali nesulaukti kol issaugos

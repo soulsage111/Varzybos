@@ -48,11 +48,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat.finishAffinity
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.app.varzybos.data.User
 import com.app.varzybos.ui.theme.VarzybosTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlin.system.exitProcess
+import com.google.firebase.firestore.auth.User as User1
 
 @ExperimentalMaterial3Api
 
@@ -81,6 +84,9 @@ class RegistrationActivity : ComponentActivity() {
                     val fontColor = Color.DarkGray;
                     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
                     val context = LocalContext.current
+
+                    val mainViewModel : MainViewModel by viewModel<MainViewModel>()
+                    mainViewModel.databaseService.initFirestore()
 
                     fun isValidEmail(email: String): Boolean {
                         return email.matches(emailRegex.toRegex())
@@ -154,11 +160,17 @@ class RegistrationActivity : ComponentActivity() {
                             onClick = {
                                 if (isValidEmail(emailAddress.text)) {
                                     var auth: FirebaseAuth = Firebase.auth
-                                    if(auth.createUserWithEmailAndPassword(emailAddress.text, password.text).isSuccessful){
+                                    auth.createUserWithEmailAndPassword(emailAddress.text, password.text).addOnSuccessListener {
+                                        var user: com.app.varzybos.data.User = User()
+                                        user.name = name.text
+                                        user.surname = surname.text
+                                        user.email = emailAddress.text
+                                        mainViewModel.databaseService.saveUser(user)
+
                                         Log.d(TAG, "registerInWithEmail:success")
                                         Toast.makeText(context, "Registracija sėkminga", Toast.LENGTH_SHORT).show()
                                         finish()
-                                    } else {
+                                    }.addOnFailureListener {
                                         Toast.makeText(context, "Registracija nepavyko", Toast.LENGTH_SHORT).show()
                                         Log.w(TAG, "registerInWithEmail:failure")
                                     }
