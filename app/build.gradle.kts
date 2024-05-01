@@ -91,6 +91,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha13")
     api("androidx.activity:activity-ktx:1.9.0")
     api("androidx.fragment:fragment-ktx:1.6.2")
+    implementation("com.github.jaikeerthick:Composable-Graphs:v1.2.3")
     val nav_version = "2.7.6"
     // Kotlin
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")

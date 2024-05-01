@@ -119,7 +119,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return list
     }
 
-
     fun updateEvents() {
         eventList.clear()
         userEventList.clear()

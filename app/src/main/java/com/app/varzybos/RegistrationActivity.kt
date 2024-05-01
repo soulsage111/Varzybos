@@ -19,9 +19,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -30,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,7 +47,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -81,6 +89,7 @@ class RegistrationActivity : ComponentActivity() {
                     var surname by rememberSaveable(stateSaver = TextFieldValue.Saver) {
                         mutableStateOf(TextFieldValue(""))
                     }
+                    var showPassword by remember { mutableStateOf(value = true) }
                     val fontColor = Color.DarkGray;
                     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
                     val context = LocalContext.current
@@ -148,12 +157,31 @@ class RegistrationActivity : ComponentActivity() {
                             onValueChange = { password = it },
                             placeholder = {Text("Slaptažodis")},
                             singleLine = true,
+                            visualTransformation = if(showPassword) PasswordVisualTransformation() else VisualTransformation.None,
                             modifier = Modifier
                                 .fillMaxWidth(0.8f),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = fontColor,
                                 unfocusedTextColor = fontColor
-                            )
+                            ),
+                            trailingIcon = {
+                                if (showPassword) {
+                                    IconButton(onClick = { showPassword = false }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Visibility,
+                                            contentDescription = "hide_password"
+                                        )
+                                    }
+                                } else {
+                                    IconButton(
+                                        onClick = { showPassword = true }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.VisibilityOff,
+                                            contentDescription = "hide_password"
+                                        )
+                                    }
+                                }
+                            }
                         )
                         Spacer(modifier = Modifier.size(16.dp))
                         Button(

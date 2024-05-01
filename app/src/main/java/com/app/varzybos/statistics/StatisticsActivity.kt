@@ -1,4 +1,4 @@
-package com.app.varzybos.tasks
+package com.app.varzybos.statistics
 
 import android.app.Activity
 import android.content.ContentValues.TAG
@@ -10,9 +10,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -56,9 +60,11 @@ import com.app.varzybos.data.Answer
 import com.app.varzybos.data.EventTask
 import com.app.varzybos.ui.theme.VarzybosTheme
 import com.google.firebase.auth.FirebaseAuth
+import com.jaikeerthick.composable_graphs.composables.line.LineGraph
+import com.jaikeerthick.composable_graphs.composables.line.model.LineData
 import java.util.UUID
 
-class AdministratorEventTaskEvaluationActivity : ComponentActivity() {
+class StatisticsActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,15 +80,15 @@ class AdministratorEventTaskEvaluationActivity : ComponentActivity() {
                     var activity = LocalContext.current as Activity
                     var sourceIntent = activity.intent
                     var eventId = sourceIntent.getStringExtra("eventId")
-                    var userId = sourceIntent.getStringExtra("userId")!!
                     val mainViewModel: MainViewModel by viewModel<MainViewModel>()
                     mainViewModel.databaseService.initFirestore()
+                    mainViewModel.updateUsers()
                     var globalEvent = eventId?.let { mainViewModel.getEventFromId(it) }!!
                     val context = LocalContext.current
 
                     var taskList by remember { mutableStateOf(globalEvent.eventTasks) }
 
-                    var answers = mainViewModel.databaseService.getAnswersForUser(eventId, userId)
+                    var scores = mainViewModel.databaseService.getScores(eventId)
 
                     Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
                         CenterAlignedTopAppBar(
@@ -104,62 +110,55 @@ class AdministratorEventTaskEvaluationActivity : ComponentActivity() {
                                 }
                             })
                     }) { values ->
-                        LazyColumn(Modifier.padding(values), horizontalAlignment = Alignment.CenterHorizontally) {
-                            items(taskList) { task ->
-                                var textFieldValue by remember {
-                                    mutableStateOf(TextFieldValue(""))
+                        if(scores.size != 0){
+                            Column(
+                                Modifier
+                                    .padding(values)
+                                    .fillMaxSize()
+                            ) {
+                                val data: MutableList<LineData> = mutableListOf()
+                                scores.forEach { item ->
+                                    data.add(LineData("", item.value))
+
                                 }
-                                ElevatedCard(onClick = {
-//                                    var intent = Intent(context, ViewTaskAnswerActivity::class.java)
-//                                    intent.putExtra("name", task.taskName)
-                                }, modifier = Modifier.padding(4.dp)) {
-                                    ListItem(headlineContent = { Text(task.taskName) },
-                                        supportingContent = {
-                                            Text(
-                                                task.taskDescription + "\nAtsakymas:\n" + findAnswer(
-                                                    task.taskId, answers!!
+
+
+                                LineGraph(
+                                    modifier = Modifier
+                                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                                    data = data
+                                )
+                                val column1Weight = .7f // 30%
+                                val column2Weight = .3f // 70%
+                                // The LazyColumn will be our table. Notice the use of the weights below
+                                LazyColumn(
+                                    Modifier
+                                        .fillMaxSize()
+                                        .padding(16.dp)
+                                ) {
+                                    // Here is the header
+                                    item {
+                                        Row(Modifier.background(Color.Gray)) {
+                                            TableCell(text = "Dalyvis", weight = column1Weight)
+                                            TableCell(text = "Rezultatas", weight = column2Weight)
+                                        }
+                                    }
+                                    // Here are all the lines of your table.
+                                    scores.toSortedMap().forEach {
+                                        item {
+                                            Row(Modifier.fillMaxWidth()) {
+                                                TableCell(text = name(mainViewModel, it.key), weight = column1Weight)
+                                                TableCell(
+                                                    text = it.value.toString(),
+                                                    weight = column2Weight
                                                 )
-                                            )
-                                        })
-                                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                                        OutlinedTextField(value = textFieldValue,
-                                            onValueChange = { it ->
-                                            textFieldValue = it
-                                                var score = 0L
-                                                try {
-                                                    score = textFieldValue.text.toLong()
-                                                    scoreLocalAnswer(task.taskId, answers, score)
-
-                                                } catch (e: Exception) {
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Netinkama taškų reikšmė",
-                                                        Toast.LENGTH_SHORT
-                                                    ).show()
-                                                    Log.w(TAG, "ScoreAnswer:failure", e)
-                                                }
-                                        })
-
-                                    }
-                                    Spacer(modifier = Modifier.padding(10.dp))
-                                }
-                            }
-                            item {
-                                Button(onClick = {
-                                    answers.forEach { item ->
-                                        mainViewModel.databaseService.scoreAnswer(
-                                            item.eventId, item.taskId, item.answerId, item.score
-                                        )
+                                            }
+                                        }
                                     }
 
-                                    finish()
-                                }) {
-                                    Text("Išsaugoti", fontSize = 16.sp, color = Color.White)
                                 }
-
                             }
                         }
-
                     }
                 }
             }
@@ -167,19 +166,26 @@ class AdministratorEventTaskEvaluationActivity : ComponentActivity() {
     }
 }
 
-private fun findAnswer(taskId: String, answers: ArrayList<Answer>): String {
-    answers.forEach { ans ->
-        if (ans.taskId == taskId) {
-            return ans.answer
+@Composable
+fun RowScope.TableCell(
+    text: String,
+    weight: Float
+) {
+    Text(
+        text = text,
+        Modifier
+            .border(1.dp, Color.Black)
+            .weight(weight)
+            .padding(8.dp)
+            .fillMaxSize()
+    )
+}
+
+fun name(mainViewModel: MainViewModel, userId: String): String {
+    mainViewModel.userList.forEach {
+        if (it.id == userId){
+            return it.name+" "+it.surname
         }
     }
     return ""
-}
-
-private fun scoreLocalAnswer(taskId: String, answers: ArrayList<Answer>, score: Long) {
-    answers.forEach { ans ->
-        if (ans.taskId == taskId) {
-            ans.score = score
-        }
-    }
 }

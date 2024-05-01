@@ -40,6 +40,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.DpOffset
@@ -54,6 +55,7 @@ import com.app.varzybos.MainViewModel
 import com.app.varzybos.data.User
 import com.app.varzybos.data.UserSingleton
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -111,8 +113,18 @@ fun ChatActivity(values: PaddingValues) {
                             mutableStateOf(false)
 
                         }
+
+                        var color = Color.Black
+                        if (runBlocking { mainViewModel.databaseService.isAdmin(item.email) }) {
+                            color = Color.Green
+                        }
+
                         ListItem(
-                            headlineContent = { Text(item.name + " " + item.surname) },
+                            headlineContent = {
+                                Text(
+                                    item.name + " " + item.surname,
+                                    color = color)
+                            },
                             supportingContent = { Text(item.email) },
                             modifier = Modifier.clickable(onClick = {
                                 reciever = item
@@ -140,14 +152,16 @@ fun ChatView(reciever: User, messages: ArrayList<Message>, mainViewModel: MainVi
     ConstraintLayout(Modifier.fillMaxSize()) {
         val (nameref, msgref, txtref) = createRefs()
 
-        Column (Modifier.fillMaxWidth()
-            .constrainAs(nameref){
-                top.linkTo(parent.top)
-                bottom.linkTo(msgref.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                height = Dimension.fillToConstraints
-            }){
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .constrainAs(nameref) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(msgref.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    height = Dimension.fillToConstraints
+                }) {
             Text(text = reciever.name + " " + reciever.surname)
 
             HorizontalDivider()

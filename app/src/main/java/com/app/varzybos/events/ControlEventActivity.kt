@@ -58,6 +58,7 @@ import com.app.varzybos.R
 import com.app.varzybos.data.Event
 import com.app.varzybos.data.User
 import com.app.varzybos.tasks.AdministratorEventTaskActivity
+import com.app.varzybos.tasks.AdministratorEventTaskEvaluationActivity
 import com.app.varzybos.tasks.EventTaskActivity
 import com.app.varzybos.ui.theme.VarzybosTheme
 import com.google.firebase.auth.FirebaseAuth
@@ -292,7 +293,7 @@ private fun UserEvaluationList(
                     },
                     modifier = Modifier.clickable(onClick = {
                         Log.e(ContentValues.TAG, "Pasiclickino")
-                        var intent = Intent(context, AdministratorEventTaskActivity::class.java)
+                        var intent = Intent(context, AdministratorEventTaskEvaluationActivity::class.java)
                         intent.putExtra("eventId", eventId)
                         intent.putExtra("userId", item.id)
                         context.startActivity(intent)

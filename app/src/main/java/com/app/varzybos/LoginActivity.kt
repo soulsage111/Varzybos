@@ -109,6 +109,7 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
         mutableStateOf(TextFieldValue("password"))
     }
     var showPassword by remember { mutableStateOf(value = true) }
+    var enableButton by remember { mutableStateOf(value = true) }
     val fontColor = Color.DarkGray;
     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
@@ -184,7 +185,15 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
             supportingText = {
                 ClickableText(
                     text = AnnotatedString("Pamiršau slaptažodį"),
-                    onClick = {},
+                    onClick = {
+                        var auth = FirebaseAuth.getInstance()
+                        auth.sendPasswordResetEmail(emailAddress.text).addOnSuccessListener {
+                            Toast.makeText(localContext, "Slaptažodžio keitimo laiškas išsiūstas", Toast.LENGTH_SHORT).show()
+                        }.addOnFailureListener{e ->
+                            Toast.makeText(localContext, "Nepavyko išsiūsti laiško", Toast.LENGTH_SHORT).show()
+                            Log.e(TAG, "password email error", e)
+                        }
+                    },
                     style = TextStyle(
                         fontSize = 12.sp,
                         lineHeight = 16.sp,
@@ -217,26 +226,36 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
         )
         Spacer(modifier = Modifier.size(16.dp))
         Button(
+            enabled = enableButton,
             onClick = {
                 if (isValidEmail(emailAddress.text)) {
+                    enableButton = false
                     var auth: FirebaseAuth = Firebase.auth
-                    auth.signInWithEmailAndPassword(emailAddress.text, password.text).addOnSuccessListener {
-                        //mainViewModel.user.email = emailAddress.text
+                    try {
 
-                        FirebaseApp.initializeApp(localContext)
-                        mainViewModel.databaseService.initFirestore()
-                        UserSingleton.initialize(auth.currentUser!!)
-                        if (runBlocking {mainViewModel.databaseService.isAdmin(emailAddress.text)}){
-                            var intent = Intent(localContext , AdminInterfaceActivity::class.java)
-                            localContext.startActivity(intent)
-                        } else {
-                            var intent = Intent(localContext , InterfaceActivity::class.java)
-                            localContext.startActivity(intent)
+                        auth.signInWithEmailAndPassword(emailAddress.text, password.text).addOnSuccessListener {
+                            //mainViewModel.user.email = emailAddress.text
+                            FirebaseApp.initializeApp(localContext)
+                            mainViewModel.databaseService.initFirestore()
+                            UserSingleton.initialize(auth.currentUser!!)
+                            if (runBlocking {mainViewModel.databaseService.isAdmin(emailAddress.text)}){
+                                var intent = Intent(localContext , AdminInterfaceActivity::class.java)
+                                localContext.startActivity(intent)
+                            } else {
+                                var intent = Intent(localContext , InterfaceActivity::class.java)
+                                localContext.startActivity(intent)
+                            }
+                            enableButton = true
+
+                        }.addOnFailureListener{e ->
+                            Log.w(TAG, "Authorisation failure; ", e)
+                            Toast.makeText(localContext, "Prisijungimas nepavyko", Toast.LENGTH_SHORT).show()
+                            enableButton = true
                         }
-
-                    }.addOnFailureListener{e ->
-                        Log.w(TAG, "Authorisation failure; ", e)
+                    } catch (e: Exception){
+                        Log.w(TAG, "Login failed; ", e)
                         Toast.makeText(localContext, "Prisijungimas nepavyko", Toast.LENGTH_SHORT).show()
+                        enableButton = true
                     }
                 }
                 else {
@@ -265,19 +284,19 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
             Text("Registruotis", fontSize = 16.sp, color = Color(0xFF837F88))
         }
         Spacer(modifier = Modifier.size(1.dp))
-        Button(
-            onClick = {
-                startForResult.launch(getGoogleLoginAuth().signInIntent)
-                runBlocking { googleAuthUiClient.signIn() }
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-            modifier = Modifier
-                .fillMaxWidth(0.3f)
-                .height(70.dp)
-        ) {
-            Image(painterResource(id = R.drawable.sign_in), "Google sign-in", modifier = Modifier
-                .height(46.dp))
-        }
+//        Button(
+//            onClick = {
+//                startForResult.launch(getGoogleLoginAuth().signInIntent)
+//                runBlocking { googleAuthUiClient.signIn() }
+//            },
+//            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+//            modifier = Modifier
+//                .fillMaxWidth(0.3f)
+//                .height(70.dp)
+//        ) {
+//            Image(painterResource(id = R.drawable.sign_in), "Google sign-in", modifier = Modifier
+//                .height(46.dp))
+//        }
 
         Spacer(modifier = Modifier.size(200.dp))
     }

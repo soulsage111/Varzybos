@@ -63,7 +63,7 @@ class DatabaseService {
 
     fun saveUser(user: User) {
 
-        val result =  firestore.collection("UserInfo").document(user.email).set(user)
+        val result = firestore.collection("UserInfo").document(user.email).set(user)
         result.addOnSuccessListener {
             Log.d("DatabaseService", "Successfuly created user")
         }
@@ -74,7 +74,7 @@ class DatabaseService {
 
     fun updateUserUid(user: User) {
 
-        val result =  firestore.collection("UserInfo").document(user.email).set(user)
+        val result = firestore.collection("UserInfo").document(user.email).set(user)
         result.addOnSuccessListener {
             Log.d("DatabaseService", "Successfuly created user")
         }
@@ -148,7 +148,7 @@ class DatabaseService {
             event.eventName = eventData!!["eventName"].toString()
             event.eventId = eventData!!["eventId"].toString()
             event.description = eventData!!["description"].toString()
-            if (eventData["closed"] != null){
+            if (eventData["closed"] != null) {
                 event.closed = eventData["closed"] as Boolean
             } else {
                 event.closed = false
@@ -248,11 +248,26 @@ class DatabaseService {
         ans.score = 0
         ans.userId = FirebaseAuth.getInstance().currentUser?.uid.toString()
         reference.set(ans)
+    }
+
+    fun saveAnswerList(eventId: String, taskId: String, answerId: String, answer: String) {
+        var reference = firestore.collection("EventAnswers").document(answerId)
+
+        var document = runBlocking { reference.get().await() }
+        var ans = Answer()
+        ans.answer = answer
+        ans.taskId = taskId
+        ans.eventId = eventId
+        ans.answerId = answerId
+        ans.score = 0
+        ans.userId = FirebaseAuth.getInstance().currentUser?.uid.toString()
+        reference.set(ans)
 
 
     }
 
-    fun scoreAnswer(eventId: String, taskId: String, answerId: String, score: Int) {
+
+    fun scoreAnswer(eventId: String, taskId: String, answerId: String, score: Long) {
         var reference = firestore.collection("EventAnswers").document(answerId)
 
         var document = runBlocking { reference.get().await() }
@@ -271,8 +286,6 @@ class DatabaseService {
     }
 
 
-
-
     fun getAnswersForUser(eventId: String, userId: String): ArrayList<Answer> {
         var result = ArrayList<Answer>()
         var reference = firestore.collection("EventAnswers")
@@ -280,17 +293,22 @@ class DatabaseService {
         runBlocking {
             a = reference.get().await()
         }
-        a.forEach{ it ->
+        a.forEach { it ->
             var data = it.data
-            if(data["eventId"] == eventId){
-                if (data["userId"] == userId){
+            if (data["eventId"] == eventId) {
+                if (data["userId"] == userId) {
                     var ans = Answer()
                     ans.answer = data["answer"].toString()
                     ans.taskId = data["taskId"].toString()
                     ans.eventId = data["eventId"].toString()
                     ans.answerId = data["answerId"].toString()
-                    ans.score = data["score"]!! as Int
                     ans.userId = data["userId"].toString()
+                    if (data["score"] != null) {
+                        ans.score = data["score"]!! as Long
+                    } else {
+                        ans.score = 0
+                    }
+
                     result.add(ans)
                 }
             }
@@ -299,30 +317,49 @@ class DatabaseService {
         return result
     }
 
+    fun getAnswer(answerId: String): Answer {
+        var reference = firestore.collection("EventAnswers").document(answerId)
+        var a: DocumentSnapshot
+        runBlocking {
+            a = reference.get().await()
+        }
+        var ans = Answer()
+        var data = a.data
+        if (data != null) {
+            ans.answer = data["answer"].toString()
+            ans.taskId = data["taskId"].toString()
+            ans.eventId = data["eventId"].toString()
+            ans.answerId = data["answerId"].toString()
+            ans.score = data["score"]!! as Long
+            ans.userId = data["userId"].toString()
+        }
 
-    fun tempgetAnswersForUser(eventId: String, userId: String): ArrayList<Answer> {
-        var result = ArrayList<Answer>()
+        return ans
+    }
+
+
+    fun getScores(eventId: String): Map<String, Long> {
+        var result: MutableMap<String, Long> = mutableMapOf()
         var reference = firestore.collection("EventAnswers")
         var a: QuerySnapshot
         runBlocking {
             a = reference.get().await()
         }
-        a.forEach{ it ->
+        a.forEach { it ->
             var data = it.data
-            if(data["eventId"] == eventId){
-                if (data["userId"] == userId){
-                    var ans = Answer()
-                    ans.answer = data["answer"].toString()
-                    ans.taskId = data["taskId"].toString()
-                    ans.eventId = data["eventId"].toString()
-                    ans.answerId = data["answerId"].toString()
-                    ans.score = data["score"]!! as Int
-                    ans.userId = data["userId"].toString()
-                    result.add(ans)
+            if (data["eventId"] == eventId) {
+                var currentScore = 0L
+                if (result[data["userId"].toString()] != null){
+                    currentScore = result[data["userId"].toString()]!!
+                    result[data["userId"].toString()] = currentScore + data["score"]!! as Long
+                } else {
+                    if (data["score"] != null){
+                        result[data["userId"].toString()] = (data["score"]!! as Long)
+                    }
                 }
+
             }
         }
-
         return result
     }
 
@@ -333,7 +370,7 @@ class DatabaseService {
         msg.id = UUID.randomUUID().toString()
         msg.from = FirebaseAuth.getInstance().currentUser?.uid.toString()
         msg.to = to
-        val result =  firestore.collection("Messages").document(msg.id).set(msg)
+        val result = firestore.collection("Messages").document(msg.id).set(msg)
         result.addOnSuccessListener {
             Log.d("DatabaseService", "Successfuly sent message")
         }

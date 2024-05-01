@@ -6,11 +6,13 @@ import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -71,12 +73,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.app.varzybos.chat.ChatActivity
 import com.app.varzybos.data.Event
 import com.app.varzybos.data.User
 import com.app.varzybos.data.UserSingleton
 import com.app.varzybos.events.AdministratorEventActivity
 import com.app.varzybos.events.ControlEventActivity
 import com.app.varzybos.events.EventCreationActivity
+import com.app.varzybos.statistics.StatisticsActivity
 import com.app.varzybos.ui.theme.VarzybosTheme
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -84,6 +88,7 @@ import kotlinx.coroutines.launch
 @ExperimentalMaterial3Api
 
 class AdminInterfaceActivity : ComponentActivity() {
+@RequiresApi(Build.VERSION_CODES.O)
 override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContent {
@@ -99,6 +104,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -131,6 +137,9 @@ private fun Interface(modifier: Modifier = Modifier) {
     }
     var surname by remember {
         mutableStateOf(UserSingleton.surname)
+    }
+    var actionButtonEnabled by remember {
+        mutableStateOf(false)
     }
 
 
@@ -189,12 +198,15 @@ private fun Interface(modifier: Modifier = Modifier) {
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(onClick = {
-                    var intent = Intent(context , EventCreationActivity::class.java)
-                    context.startActivity(intent)
-                }) {
-                    Icon(Icons.Default.Create, contentDescription = "Create event")
+                if(actionButtonEnabled){
+                    FloatingActionButton(onClick = {
+                        var intent = Intent(context , EventCreationActivity::class.java)
+                        context.startActivity(intent)
+                    }) {
+                        Icon(Icons.Default.Create, contentDescription = "Create event")
+                    }
                 }
+
             },
             bottomBar = {
                 NavigationBar(
@@ -226,10 +238,16 @@ private fun Interface(modifier: Modifier = Modifier) {
 
             NavHost(navController = navController, startDestination = AdminScreen.Renginiai.route ){
                 composable(route = AdminScreen.Renginiai.route){
+                    actionButtonEnabled = true
                     EventList(mainViewModel.eventList, values, mainViewModel)
                 }
                 composable(route = AdminScreen.Vartotojai.route){
+                    actionButtonEnabled = false
                     UserList(mainViewModel.userList, values, mainViewModel)
+                }
+                composable(route = AdminScreen.Pranesimai.route){
+                    actionButtonEnabled = false
+                    ChatActivity(values)
                 }
             }
 
@@ -246,6 +264,7 @@ private fun Interface(modifier: Modifier = Modifier) {
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues, mainViewModel: MainViewModel){
     var context = LocalContext.current
@@ -278,7 +297,7 @@ private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues
                 }
                 ListItem(
                     headlineContent = { Text(item.eventName) },
-                    supportingContent = { Text("Eventas") },
+                    supportingContent = { Text(com.app.varzybos.chat.millisToDate(item.eventDate.toInstant().toEpochMilli())) },
                     modifier = Modifier.clickable(onClick = {
                         val intent = Intent(context, ControlEventActivity::class.java)
                         intent.putExtra("eventId", item.eventId)
@@ -299,15 +318,19 @@ private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues
                             },
                             offset = pressOffset
                         ) {
+                            DropdownMenuItem(text = { Text("Statistika") }, onClick = {
+                                var intent = Intent(context, StatisticsActivity::class.java)
+                                intent.putExtra("eventId", item.eventId)
+                                context.startActivity(intent)
+                                isContextMenuVisible = false
+                            })
                             DropdownMenuItem(text = { Text("Redaguoti") }, onClick = {
-                                Log.e(ContentValues.TAG, "Pasiclickino")
                                 var intent = Intent(context, AdministratorEventActivity::class.java)
                                 intent.putExtra("eventId", item.eventId)
                                 context.startActivity(intent)
                                 isContextMenuVisible = false
                             })
                             DropdownMenuItem(text = { Text("Ištrinti") }, onClick = {
-                                Log.e(ContentValues.TAG, "Pasiclickino")
                                 mainViewModel.databaseService.removeEvent(item)
                                 mainViewModel.updateEvents()
                                 isContextMenuVisible = false

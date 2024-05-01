@@ -5,6 +5,6 @@ class Answer {
     var taskId = ""
     var userId = ""
     var answerId = ""
-    var score = 0
+    var score: Long = 0
     var answer = ""
 }

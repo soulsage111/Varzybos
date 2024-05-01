@@ -73,6 +73,7 @@ class AdministratorEventTaskActivity: ComponentActivity() {
                     var taskList by remember{ mutableStateOf(globalEvent.eventTasks) }
 
                     var answers = mainViewModel.databaseService.getAnswersForUser(eventId, userId )
+                    answers = mainViewModel.databaseService.getAnswersForUser(eventId, userId )
 
                     Scaffold (
                         modifier =

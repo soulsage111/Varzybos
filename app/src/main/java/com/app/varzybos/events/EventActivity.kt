@@ -97,12 +97,6 @@ class EventActivity: ComponentActivity() {
 
                     val storageRef = FirebaseStorage.getInstance().getReference()
                     var islandRef = storageRef.child("images/$eventId")
-//                    islandRef.getBytes(ONE_MEGABYTE * 10).addOnSuccessListener {
-//                        data->
-//                        imageByteArray = data
-//                    }.addOnFailureListener{ e ->
-//                        Log.w(TAG, "Failed to retrieve image", e)
-//                    }
                     var imageUri by remember {
                         mutableStateOf(Uri.parse(""))
                     }

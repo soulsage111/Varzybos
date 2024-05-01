@@ -70,6 +70,9 @@ class EventTaskAnswerActivity : ComponentActivity() {
 
                     var answer by remember { mutableStateOf(TextFieldValue(""))}
 
+                    answer = TextFieldValue(mainViewModel.databaseService.getAnswer(taskId).answer)
+
+
                     Scaffold(
                         modifier =
                         Modifier
