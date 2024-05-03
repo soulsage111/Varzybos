@@ -75,7 +75,7 @@ class ControlEventActivity : ComponentActivity() {
                 ) {
                     val activity = LocalContext.current as Activity
                     val mainViewModel: MainViewModel by viewModel<MainViewModel>()
-                    mainViewModel.databaseService.initFirestore()
+                    mainViewModel.initFirestore()
                     var intent = activity.intent
                     var eventId = intent.getStringExtra("eventId")
                     var globalEvent: Event = eventId?.let { mainViewModel.getEventFromId(it) }!!
@@ -119,10 +119,10 @@ class ControlEventActivity : ComponentActivity() {
                                         onDismissRequest = {
                                             isContextMenuVisible = false
                                         }) {
-                                        if (mainViewModel.databaseService.isEventStopped(eventId)) {
+                                        if (mainViewModel.isEventStopped(eventId)) {
                                             DropdownMenuItem(text = { Text("Leisti renginį") },
                                                 onClick = {
-                                                    mainViewModel.databaseService.stoppedEvent(
+                                                    mainViewModel.stoppedEvent(
                                                         eventId, false
                                                     )
                                                 })
@@ -132,7 +132,7 @@ class ControlEventActivity : ComponentActivity() {
                                                     "Stabdyti renginį", color = Color.Red
                                                 )
                                             }, onClick = {
-                                                mainViewModel.databaseService.stoppedEvent(
+                                                mainViewModel.stoppedEvent(
                                                     eventId, true
                                                 )
                                             })
@@ -144,7 +144,7 @@ class ControlEventActivity : ComponentActivity() {
                     }
 
                     ) { pad ->
-                        if (mainViewModel.databaseService.isEventStopped(eventId)){
+                        if (mainViewModel.isEventStopped(eventId)){
                             UserEvaluationList(
                                 userList = mainViewModel.currentUserList,
                                 values = pad,
@@ -209,7 +209,7 @@ private fun UserList(
                     },
                     modifier = Modifier.clickable(onClick = {
 
-                        if (mainViewModel.databaseService.isEventStopped(eventId)){
+                        if (mainViewModel.isEventStopped(eventId)){
                             var intent = Intent(context, AdministratorEventTaskEvaluationActivity::class.java)
                             intent.putExtra("eventId", eventId)
                             intent.putExtra("userId", item.id)

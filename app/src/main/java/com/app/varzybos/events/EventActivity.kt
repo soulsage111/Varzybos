@@ -3,13 +3,10 @@ package com.app.varzybos.events
 import android.app.Activity
 import android.content.ContentValues.TAG
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.text.Html
-import android.text.SpannableStringBuilder
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,8 +15,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -49,29 +44,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import androidx.core.text.bold
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.app.varzybos.MainViewModel
-import com.app.varzybos.RegistrationActivity
 import com.app.varzybos.data.Event
 import com.app.varzybos.tasks.StartEventTaskActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.tasks.await
-import java.text.SimpleDateFormat
-import java.time.format.TextStyle
-import java.util.Calendar
-import java.util.Locale
 
 
 class EventActivity: ComponentActivity() {
@@ -88,7 +71,7 @@ class EventActivity: ComponentActivity() {
                     val activity = LocalContext.current as Activity
                     var sizeImage by remember { mutableStateOf(IntSize.Zero) }
                     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
-                    mainViewModel.databaseService.initFirestore()
+                    mainViewModel.initFirestore()
                     var intent = activity.intent
                     var eventId = intent.getStringExtra("eventId")
                     var globalEvent : Event = eventId?.let { mainViewModel.getEventFromId(it) }!!
@@ -172,12 +155,12 @@ class EventActivity: ComponentActivity() {
                                             Text("Dalyvauti", fontSize = 16.sp, color = Color.White)
                                         }
                                     } else {
-                                        var registered = mainViewModel.databaseService.isRegisteredToEvent(eventId)
+                                        var registered = mainViewModel.isRegisteredToEvent(eventId)
 
 
                                         Button(
                                             onClick = {
-                                                mainViewModel.databaseService.registerUserToEvent(eventId)
+                                                mainViewModel.registerUserToEvent(eventId)
                                                 finish()
                                             },
                                             enabled = !registered
@@ -188,7 +171,7 @@ class EventActivity: ComponentActivity() {
                                         if (registered){
                                             Button(
                                                 onClick = {
-                                                    mainViewModel.databaseService.unregisterUserFromEvent(eventId)
+                                                    mainViewModel.unregisterUserFromEvent(eventId)
                                                     finish()
                                                 },
                                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFFFFF))

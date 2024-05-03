@@ -81,14 +81,14 @@ class StatisticsActivity : ComponentActivity() {
                     var sourceIntent = activity.intent
                     var eventId = sourceIntent.getStringExtra("eventId")
                     val mainViewModel: MainViewModel by viewModel<MainViewModel>()
-                    mainViewModel.databaseService.initFirestore()
+                    mainViewModel.initFirestore()
                     mainViewModel.updateUsers()
                     var globalEvent = eventId?.let { mainViewModel.getEventFromId(it) }!!
                     val context = LocalContext.current
 
                     var taskList by remember { mutableStateOf(globalEvent.eventTasks) }
 
-                    var scores = mainViewModel.databaseService.getScores(eventId)
+                    var scores = mainViewModel.getScores(eventId)
 
                     Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
                         CenterAlignedTopAppBar(

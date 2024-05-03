@@ -113,16 +113,16 @@ override fun onCreate(savedInstanceState: Bundle?) {
 private fun Interface(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
-    mainViewModel.databaseService.initFirestore()
+    mainViewModel.initFirestore()
     mainViewModel.updateEvents()
-    FirebaseAuth.getInstance().currentUser?.let { it1 -> UserSingleton.initialize(it1) }
+    FirebaseAuth.getInstance().currentUser?.let { it1 -> UserSingleton.initialize(it1, mainViewModel) }
 
     var u = User()
     u.id = FirebaseAuth.getInstance().currentUser?.uid.toString()
     u.name = UserSingleton.name
     u.surname = UserSingleton.surname
     u.email = UserSingleton.email
-    mainViewModel.databaseService.saveUser(u)
+    mainViewModel.saveUser(u)
 
     var scope = rememberCoroutineScope()
     var selectedItem by remember { mutableIntStateOf(0) }

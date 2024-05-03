@@ -229,8 +229,8 @@ class EventCreationActivity: ComponentActivity() {
                                                 storageRef.putFile(imageUri).await()
                                             }
 
-                                            mainViewModel.databaseService.initFirestore()
-                                            mainViewModel.databaseService.saveEvent(event)
+                                            mainViewModel.initFirestore()
+                                            mainViewModel.saveEvent(event)
                                             //atsargiai gali nesulaukti kol issaugos
                                             activity?.finish()
 
@@ -258,21 +258,4 @@ class EventCreationActivity: ComponentActivity() {
     }
 }
 
-@Composable
-fun ImageDisplay(bitmap : Bitmap?, onClick: () -> Unit, resources: Resources){
-    var i: ImageBitmap
-    try {
-        i = (bitmap?.asImageBitmap() ?: BitmapFactory.decodeResource(null, R.drawable.img).asImageBitmap())
-    } catch (e : Exception){
-        Log.e(TAG, "ImageDisplay error. Bitmap not set.")
-        i = BitmapFactory.decodeResource(resources, R.drawable.img).asImageBitmap()
-    }
-    Box(modifier = Modifier
-        .width(100.dp)
-        .height(100.dp)
-        .clickable { onClick() }){
-        Image(bitmap = i, contentDescription = "Event image")
 
-    }
-
-}

@@ -1,4 +1,4 @@
-package com.app.varzybos
+package com.app.varzybos.main
 
 import android.app.Activity
 import android.content.ContentValues.TAG
@@ -63,8 +63,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import com.app.varzybos.main.AdminInterfaceActivity
-import com.app.varzybos.main.InterfaceActivity
+import com.app.varzybos.MainViewModel
+import com.app.varzybos.R
+import com.app.varzybos.UserSingleton
 import com.app.varzybos.presentation.sign_in.GoogleAuthUiClient
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -236,9 +237,9 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
                         auth.signInWithEmailAndPassword(emailAddress.text, password.text).addOnSuccessListener {
                             //mainViewModel.user.email = emailAddress.text
                             FirebaseApp.initializeApp(localContext)
-                            mainViewModel.databaseService.initFirestore()
-                            UserSingleton.initialize(auth.currentUser!!)
-                            if (runBlocking {mainViewModel.databaseService.isAdmin(emailAddress.text)}){
+                            mainViewModel.initFirestore()
+                            UserSingleton.initialize(auth.currentUser!!, mainViewModel)
+                            if (runBlocking {mainViewModel.isAdmin(emailAddress.text)}){
                                 var intent = Intent(localContext , AdminInterfaceActivity::class.java)
                                 localContext.startActivity(intent)
                             } else {

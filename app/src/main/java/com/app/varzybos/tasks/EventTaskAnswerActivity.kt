@@ -64,13 +64,13 @@ class EventTaskAnswerActivity : ComponentActivity() {
                     var taskDescription = intent.getStringExtra("taskDescription")!!
                     var taskId = intent.getStringExtra("taskId")!!
                     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
-                    mainViewModel.databaseService.initFirestore()
+                    mainViewModel.initFirestore()
                     var globalEvent = eventId?.let { mainViewModel.getEventFromId(it) }!!
                     val context = LocalContext.current
 
                     var answer by remember { mutableStateOf(TextFieldValue(""))}
 
-                    answer = TextFieldValue(mainViewModel.databaseService.getAnswer(taskId).answer)
+                    answer = TextFieldValue(mainViewModel.getAnswer(taskId).answer)
 
 
                     Scaffold(
@@ -124,7 +124,7 @@ class EventTaskAnswerActivity : ComponentActivity() {
 
                             Button(
                                 onClick = {
-                                    mainViewModel.databaseService.saveAnswer(globalEvent.eventId, taskId, UUID.randomUUID().toString(), answer.text)
+                                    mainViewModel.saveAnswer(globalEvent.eventId, taskId, UUID.randomUUID().toString(), answer.text)
                                     finish()
                                 }
                             ) {

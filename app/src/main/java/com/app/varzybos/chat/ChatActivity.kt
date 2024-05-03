@@ -51,6 +51,7 @@ import androidx.navigation.compose.rememberNavController
 import com.app.varzybos.MainViewModel
 import com.app.varzybos.data.User
 import com.app.varzybos.UserSingleton
+import com.app.varzybos.data.Message
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
@@ -68,7 +69,7 @@ fun ChatActivity(values: PaddingValues) {
     var reciever by remember {
         mutableStateOf(User())
     }
-    mainViewModel.databaseService.initFirestore()
+    mainViewModel.initFirestore()
     mainViewModel.updateUsers()
 
 
@@ -112,7 +113,7 @@ fun ChatActivity(values: PaddingValues) {
                         }
 
                         var color = Color.Black
-                        if (runBlocking { mainViewModel.databaseService.isAdmin(item.email) }) {
+                        if (runBlocking { mainViewModel.isAdmin(item.email) }) {
                             color = Color.Green
                         }
 
@@ -239,7 +240,7 @@ fun ChatView(reciever: User, messages: ArrayList<Message>, mainViewModel: MainVi
             trailingIcon = {
                 IconButton(onClick = {
                     if (textFieldValue != TextFieldValue("")) {
-                        mainViewModel.databaseService.sendMessage(
+                        mainViewModel.sendMessage(
                             textFieldValue.text, reciever.id
                         )
                         textFieldValue = TextFieldValue("")

@@ -114,11 +114,11 @@ override fun onCreate(savedInstanceState: Bundle?) {
 private fun Interface(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
-    mainViewModel.databaseService.initFirestore()
+    mainViewModel.initFirestore()
     mainViewModel.updateEvents()
     mainViewModel.updateUsers()
 
-    FirebaseAuth.getInstance().currentUser?.let { it1 -> UserSingleton.initialize(it1) }
+    FirebaseAuth.getInstance().currentUser?.let { UserSingleton.initialize(it, mainViewModel) }
 
    // val eventList = mainViewModel.eventList.observeAsState()
 
@@ -333,7 +333,7 @@ private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues
                                 isContextMenuVisible = false
                             })
                             DropdownMenuItem(text = { Text("Ištrinti") }, onClick = {
-                                mainViewModel.databaseService.removeEvent(item)
+                                mainViewModel.removeEvent(item)
                                 mainViewModel.updateEvents()
                                 isContextMenuVisible = false
                             })

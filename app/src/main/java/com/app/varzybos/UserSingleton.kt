@@ -1,10 +1,14 @@
 package com.app.varzybos
 
+import android.app.Application
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.MutableLiveData
-import com.app.varzybos.chat.Message
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.app.varzybos.data.Message
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.runBlocking
@@ -15,18 +19,21 @@ object UserSingleton {
     var name by mutableStateOf("")
     var surname by mutableStateOf("")
     var email by mutableStateOf("")
-    var token by mutableStateOf("")
+    var id by mutableStateOf("")
+
     //var messages = mutableListOf(Chat())
     val messages: MutableLiveData<ArrayList<Message>> by lazy { MutableLiveData<ArrayList<Message>>() }
 
-    fun initialize(firebaseUser: FirebaseUser) {
+
+    fun initialize(firebaseUser: FirebaseUser, mainViewModel: MainViewModel) {
         email = firebaseUser.email.toString()
         UserSingleton.firebaseUser = firebaseUser
-        val d = DatabaseService()
-        d.initFirestore()
+
+        mainViewModel.initFirestore()
         val databaseReference: DocumentSnapshot
         runBlocking {
-            databaseReference = d.firestore.collection("UserInfo").document(email).get().await()
+            databaseReference =
+                mainViewModel.firestore.collection("UserInfo").document(email).get().await()
         }
         name = databaseReference["name"].toString()
         surname = databaseReference["surname"].toString()
@@ -54,13 +61,13 @@ object UserSingleton {
 //        }
 
 
-        d.firestore.collection("Messages").addSnapshotListener { value, error ->
+        mainViewModel.firestore.collection("Messages").addSnapshotListener { value, error ->
 
             var list = ArrayList<Message>()
             value?.documents?.forEach { it ->
                 var data = it.data
                 if (data != null) {
-                    if(data.values.contains(firebaseUser.uid)){
+                    if (data.values.contains(firebaseUser.uid)) {
                         var ch = Message()
                         ch.id = data["id"].toString()
                         ch.from = data["from"].toString()

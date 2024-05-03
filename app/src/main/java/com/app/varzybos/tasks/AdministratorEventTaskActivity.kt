@@ -66,14 +66,14 @@ class AdministratorEventTaskActivity: ComponentActivity() {
                     var eventId = sourceIntent.getStringExtra("eventId")
                     var userId = sourceIntent.getStringExtra("userId")!!
                     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
-                    mainViewModel.databaseService.initFirestore()
+                    mainViewModel.initFirestore()
                     var globalEvent = eventId?.let { mainViewModel.getEventFromId(it) }!!
                     val context = LocalContext.current
 
                     var taskList by remember{ mutableStateOf(globalEvent.eventTasks) }
 
-                    var answers = mainViewModel.databaseService.getAnswersForUser(eventId, userId )
-                    answers = mainViewModel.databaseService.getAnswersForUser(eventId, userId )
+                    var answers = mainViewModel.getAnswersForUser(eventId, userId )
+                    answers = mainViewModel.getAnswersForUser(eventId, userId )
 
                     Scaffold (
                         modifier =

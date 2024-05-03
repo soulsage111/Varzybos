@@ -1,8 +1,6 @@
-package com.app.varzybos
+package com.app.varzybos.main
 
-import android.app.Activity
 import android.content.ContentValues.TAG
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -18,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -32,7 +29,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,26 +40,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.app.varzybos.MainViewModel
+import com.app.varzybos.R
 import com.app.varzybos.data.User
 import com.app.varzybos.ui.theme.VarzybosTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlin.system.exitProcess
-import com.google.firebase.firestore.auth.User as User1
 
 @ExperimentalMaterial3Api
 
@@ -95,7 +84,7 @@ class RegistrationActivity : ComponentActivity() {
                     val context = LocalContext.current
 
                     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
-                    mainViewModel.databaseService.initFirestore()
+                    mainViewModel.initFirestore()
 
                     fun isValidEmail(email: String): Boolean {
                         return email.matches(emailRegex.toRegex())
@@ -193,7 +182,7 @@ class RegistrationActivity : ComponentActivity() {
                                         user.name = name.text
                                         user.surname = surname.text
                                         user.email = emailAddress.text
-                                        mainViewModel.databaseService.saveUser(user)
+                                        mainViewModel.saveUser(user)
 
                                         Log.d(TAG, "registerInWithEmail:success")
                                         Toast.makeText(context, "Registracija sėkminga", Toast.LENGTH_SHORT).show()

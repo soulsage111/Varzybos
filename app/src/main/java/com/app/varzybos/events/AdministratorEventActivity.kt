@@ -76,7 +76,7 @@ class AdministratorEventActivity: ComponentActivity() {
                     var intent = activity.intent
                     var eventId = intent.getStringExtra("eventId")
                     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
-                    mainViewModel.databaseService.initFirestore()
+                    mainViewModel.initFirestore()
                     var globalEvent : Event = eventId?.let { mainViewModel.getEventFromId(it) }!!
 
 
@@ -176,8 +176,8 @@ class AdministratorEventActivity: ComponentActivity() {
                                         event.eventDate = startDate
                                         event.registeredUsers = globalEvent.registeredUsers
                                         event.eventTasks = globalEvent.eventTasks
-                                        mainViewModel.databaseService.initFirestore()
-                                        mainViewModel.databaseService.saveEvent(event)
+                                        mainViewModel.initFirestore()
+                                        mainViewModel.saveEvent(event)
                                         //atsargiai gali nesulaukti kol issaugos
                                         activity.finish()
                                     } catch (e: Exception){

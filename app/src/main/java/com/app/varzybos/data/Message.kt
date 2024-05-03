@@ -1,4 +1,4 @@
-package com.app.varzybos.chat
+package com.app.varzybos.data
 
 data class Message(
     var id: String = "",

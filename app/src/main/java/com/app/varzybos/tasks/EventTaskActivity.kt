@@ -76,13 +76,13 @@ class EventTaskActivity: ComponentActivity() {
                     var intent = activity.intent
                     var eventId = intent.getStringExtra("eventId")
                     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
-                    mainViewModel.databaseService.initFirestore()
+                    mainViewModel.initFirestore()
                     var globalEvent = eventId?.let { mainViewModel.getEventFromId(it) }!!
                     val context = LocalContext.current
 
                     var taskList by remember{ mutableStateOf(globalEvent.eventTasks) }
 
-                    UpdateEvent(newTask, globalEvent, mainViewModel.databaseService) {
+                    UpdateEvent(newTask, globalEvent, mainViewModel) {
                         globalEvent = eventId?.let { mainViewModel.getEventFromId(it) }!!
                         taskList = globalEvent.eventTasks
                     }
@@ -132,12 +132,12 @@ class EventTaskActivity: ComponentActivity() {
 private fun UpdateEvent(
     newTask: EventTask,
     globalEvent: Event,
-    databaseService: DatabaseService,
+    mainViewModel: MainViewModel,
     function: () -> Unit
 ) {
     if (newTask.taskName!=""){
         globalEvent.eventTasks.add(newTask)
-        databaseService.saveEvent(globalEvent)
+        mainViewModel.saveEvent(globalEvent)
         function()
     }
 }

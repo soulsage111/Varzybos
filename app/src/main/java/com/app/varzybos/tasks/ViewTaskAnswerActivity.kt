@@ -59,7 +59,7 @@ class ViewTaskAnswerActivity : ComponentActivity() {
                 ) {
                     val activity = LocalContext.current as Activity
                     val mainViewModel : MainViewModel by viewModel<MainViewModel>()
-                    mainViewModel.databaseService.initFirestore()
+                    mainViewModel.initFirestore()
                     var intent = activity.intent
                     var eventId = intent.getStringExtra("eventId")
                     //var globalEvent : Event = eventId?.let { mainViewModel.getEventFromId(it) }!!
@@ -105,12 +105,12 @@ class ViewTaskAnswerActivity : ComponentActivity() {
 //                                        Text("Dalyvauti", fontSize = 16.sp, color = Color.White)
 //                                    }
 //                                } else {
-//                                    var registered = mainViewModel.databaseService.isRegisteredToEvent(eventId)
+//                                    var registered = mainViewModel.isRegisteredToEvent(eventId)
 //
 //
 //                                    Button(
 //                                        onClick = {
-//                                            mainViewModel.databaseService.registerUserToEvent(eventId)
+//                                            mainViewModel.registerUserToEvent(eventId)
 //                                            finish()
 //                                        },
 //                                        enabled = !registered
@@ -121,7 +121,7 @@ class ViewTaskAnswerActivity : ComponentActivity() {
 //                                    if (registered){
 //                                        Button(
 //                                            onClick = {
-//                                                mainViewModel.databaseService.unregisterUserFromEvent(eventId)
+//                                                mainViewModel.unregisterUserFromEvent(eventId)
 //                                                finish()
 //                                            },
 //                                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFFFFF))

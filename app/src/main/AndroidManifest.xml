@@ -24,7 +24,7 @@
             <meta-data android:name="photopicker_activity:0:required" android:value="" />
         </service>
         <activity
-            android:name=".LoginActivity"
+            android:name=".main.LoginActivity"
             android:exported="true"
             android:theme="@style/Theme.Varzybos">
             <intent-filter>
@@ -38,7 +38,7 @@
             android:theme="@style/Theme.Varzybos">
         </activity>
         <activity
-            android:name=".RegistrationActivity"
+            android:name=".main.RegistrationActivity"
             android:exported="true"
             android:theme="@style/Theme.Varzybos">
         </activity>
