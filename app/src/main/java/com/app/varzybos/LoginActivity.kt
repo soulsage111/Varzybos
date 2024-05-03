@@ -63,8 +63,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import com.app.varzybos.data.User
-import com.app.varzybos.data.UserSingleton
+import com.app.varzybos.main.AdminInterfaceActivity
+import com.app.varzybos.main.InterfaceActivity
 import com.app.varzybos.presentation.sign_in.GoogleAuthUiClient
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.signin.GoogleSignIn

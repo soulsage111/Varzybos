@@ -1,14 +1,9 @@
-package com.app.varzybos.data
+package com.app.varzybos
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.app.varzybos.DatabaseService
-import com.app.varzybos.chat.Chat
 import com.app.varzybos.chat.Message
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot
@@ -26,7 +21,7 @@ object UserSingleton {
 
     fun initialize(firebaseUser: FirebaseUser) {
         email = firebaseUser.email.toString()
-        this.firebaseUser = firebaseUser
+        UserSingleton.firebaseUser = firebaseUser
         val d = DatabaseService()
         d.initFirestore()
         val databaseReference: DocumentSnapshot

@@ -43,12 +43,12 @@
             android:theme="@style/Theme.Varzybos">
         </activity>
         <activity
-            android:name=".InterfaceActivity"
+            android:name=".main.InterfaceActivity"
             android:exported="true"
             android:theme="@style/Theme.Varzybos">
         </activity>
         <activity
-            android:name=".AdminInterfaceActivity"
+            android:name=".main.AdminInterfaceActivity"
             android:exported="true"
             android:theme="@style/Theme.Varzybos">
         </activity>

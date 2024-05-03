@@ -1,4 +1,4 @@
-package com.app.varzybos;
+package com.app.varzybos.main;
 
 import android.annotation.SuppressLint
 import android.content.ComponentName
@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ElevatedCard
@@ -74,10 +73,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.app.varzybos.MainViewModel
+import com.app.varzybos.R
+import com.app.varzybos.Screen
 import com.app.varzybos.chat.ChatActivity
 import com.app.varzybos.data.Event
 import com.app.varzybos.data.User
-import com.app.varzybos.data.UserSingleton
+import com.app.varzybos.UserSingleton
 import com.app.varzybos.events.EventActivity
 import com.app.varzybos.ui.theme.VarzybosTheme
 import com.google.firebase.auth.FirebaseAuth

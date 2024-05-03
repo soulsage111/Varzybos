@@ -1,8 +1,7 @@
-package com.app.varzybos;
+package com.app.varzybos.main;
 
 import android.annotation.SuppressLint
 import android.content.ComponentName
-import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -73,10 +72,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.app.varzybos.AdminScreen
+import com.app.varzybos.MainViewModel
+import com.app.varzybos.R
 import com.app.varzybos.chat.ChatActivity
 import com.app.varzybos.data.Event
 import com.app.varzybos.data.User
-import com.app.varzybos.data.UserSingleton
+import com.app.varzybos.UserSingleton
 import com.app.varzybos.events.AdministratorEventActivity
 import com.app.varzybos.events.ControlEventActivity
 import com.app.varzybos.events.EventCreationActivity

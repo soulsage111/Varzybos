@@ -10,7 +10,6 @@ import androidx.lifecycle.AndroidViewModel
 import com.app.varzybos.data.Event
 import com.app.varzybos.data.EventTask
 import com.app.varzybos.data.User
-import com.app.varzybos.data.UserSingleton
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
