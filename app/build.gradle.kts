@@ -46,6 +46,8 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            merges += "META-INF/LICENSE.md"
+            merges += "META-INF/LICENSE-notice.md"
         }
     }
 }
@@ -69,12 +71,16 @@ dependencies {
     implementation("com.google.firebase:firebase-database-ktx:20.3.1")
     implementation("com.google.android.gms:play-services-auth:21.0.0")
     implementation("com.google.firebase:firebase-storage:20.3.0")
+    implementation("androidx.preference:preference-ktx:1.2.1")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.10.01"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    androidTestImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.compose.material3:material3:1.1.2")
@@ -92,6 +98,9 @@ dependencies {
     api("androidx.activity:activity-ktx:1.9.0")
     api("androidx.fragment:fragment-ktx:1.6.2")
     implementation("com.github.jaikeerthick:Composable-Graphs:v1.2.3")
+    implementation("com.github.MKergall:osmbonuspack:6.9.0")
+    implementation("org.osmdroid:osmdroid-android:6.1.13")
+    implementation(platform("androidx.compose:compose-bom:2024.05.00"))
     val nav_version = "2.7.6"
     // Kotlin
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")

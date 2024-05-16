@@ -170,6 +170,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun getEventFromId(id: String): Event {
+        var time = System.currentTimeMillis()
+
+
+
         var eventData: Map<String, Any>?
         runBlocking {
             eventData =
@@ -205,6 +209,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         }
+        Log.e("Time getEventFromId", (System.currentTimeMillis() - time).toString())
         return event
     }
 
@@ -214,6 +219,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun saveEvent(event: Event) {
+        var time = System.currentTimeMillis()
+
+
         val document = if (event.eventId.isEmpty()) {
             firestore.collection("Events").document()
         } else {
@@ -223,6 +231,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         val result = document.set(event)
         result.addOnSuccessListener {
+            Log.e("Time saveEvent", (System.currentTimeMillis() - time).toString())
             Log.d("DatabaseService", "Successfuly created event")
         }
         result.addOnFailureListener {
@@ -244,9 +253,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun saveUser(user: User) {
+        var time = System.currentTimeMillis()
 
         val result = firestore.collection("UserInfo").document(user.email).set(user)
         result.addOnSuccessListener {
+            Log.e("Time saveUser", (System.currentTimeMillis() - time).toString())
             Log.d("DatabaseService", "Successfuly created user")
         }
         result.addOnFailureListener {
@@ -267,6 +278,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun registerUserToEvent(eventId: String) {
+        var time = System.currentTimeMillis()
         var reference = firestore.collection("Events").document(eventId)
 
         var document = runBlocking { reference.get().await() }
@@ -310,6 +322,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         val r = reference.set(event)
         r.addOnSuccessListener {
+            Log.e("Time registerUserToEvent", (System.currentTimeMillis() - time).toString())
             Log.d("DatabaseService", "Successfuly created event")
         }
         r.addOnFailureListener {
@@ -546,6 +559,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun sendMessage(message: String, to: String) {
+        var time = System.currentTimeMillis()
         var msg = Message()
         msg.message = message
         msg.timestamp = System.currentTimeMillis()
@@ -554,6 +568,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         msg.to = to
         val result = firestore.collection("Messages").document(msg.id).set(msg)
         result.addOnSuccessListener {
+            Log.e("Time sendMessage", (System.currentTimeMillis() - time).toString())
             Log.d("DatabaseService", "Successfuly sent message")
         }
         result.addOnFailureListener {

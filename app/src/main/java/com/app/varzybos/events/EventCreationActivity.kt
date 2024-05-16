@@ -52,6 +52,7 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -80,6 +81,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.UUID
+import kotlin.system.measureTimeMillis
 
 class EventCreationActivity: ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -122,6 +124,8 @@ class EventCreationActivity: ComponentActivity() {
                     var eventDate: Date
                     val activity = (LocalContext.current as Activity)
                     val regex = "([01]?[0-9]|2[0-3]):[0-5][0-9]"
+
+                    var enableButton by remember { mutableStateOf(value = true) }
 
                     fun isValidTime(time: String): Boolean {
                         return time.matches(regex.toRegex())
@@ -179,7 +183,6 @@ class EventCreationActivity: ComponentActivity() {
                                 ))
                             Spacer(modifier = Modifier.size(16.dp))
                             DatePicker(state = stateDate, headline = null, title = null, showModeToggle = false)
-                            Spacer(modifier = Modifier.size(16.dp))
                             OutlinedTextField(value = eventTime,
                                 onValueChange = {eventTime = it},
                                 placeholder = { Text("00:00")},
@@ -188,6 +191,7 @@ class EventCreationActivity: ComponentActivity() {
                                     focusedTextColor = Color.DarkGray,
                                     unfocusedTextColor = Color.DarkGray
                                 ))
+                            Spacer(modifier = Modifier.size(16.dp))
                             OutlinedTextField(value = description,
                                 onValueChange = {description = it},
                                 placeholder = { Text("Aprašymas")},
@@ -198,11 +202,13 @@ class EventCreationActivity: ComponentActivity() {
                                 ),
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(200.dp))
+                                    .height(200.dp)
+                                    .fillMaxWidth(0.8f))
                             Spacer(modifier = Modifier.size(16.dp))
                             Button(
                                 onClick = {
                                     try {
+                                        enableButton = false
                                         var startDate : Date
                                         var event : Event = Event()
                                         var milis: Long = 0
@@ -230,13 +236,17 @@ class EventCreationActivity: ComponentActivity() {
                                             }
 
                                             mainViewModel.initFirestore()
-                                            mainViewModel.saveEvent(event)
-                                            //atsargiai gali nesulaukti kol issaugos
+                                            val t = measureTimeMillis {
+                                                mainViewModel.saveEvent(event)
+                                            }
+                                            //Log.e("Time saveEvent", t.toString())
                                             activity?.finish()
+                                            enableButton = true
 
                                         }
 
                                     } catch (e: Exception){
+                                        enableButton = true
                                         Toast.makeText(context, "Klaida kuriant įvykį.", Toast.LENGTH_SHORT).show()
                                         Log.e(TAG, "Event Creation error", e)
                                     }
@@ -245,7 +255,8 @@ class EventCreationActivity: ComponentActivity() {
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6750A4)),
                                 modifier = Modifier
                                     .fillMaxWidth(0.6f)
-                                    .height(46.dp)
+                                    .height(46.dp),
+                                enabled = enableButton
                             ) {
                                 Text("Išsaugoti", fontSize = 16.sp, color = Color.White)
                             }

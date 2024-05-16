@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
@@ -48,11 +49,13 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.varzybos.MainViewModel
 import com.app.varzybos.R
+import com.app.varzybos.data.Event
 import com.app.varzybos.data.User
 import com.app.varzybos.ui.theme.VarzybosTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlin.system.measureTimeMillis
 
 @ExperimentalMaterial3Api
 
@@ -115,7 +118,8 @@ class RegistrationActivity : ComponentActivity() {
                                 unfocusedTextColor = fontColor
                             ),
                             modifier = Modifier
-                                .fillMaxWidth(0.8f))
+                                .fillMaxWidth(0.8f)
+                                .testTag("vardas"))
                         Spacer(modifier = Modifier.size(16.dp))
                         OutlinedTextField(value = surname,
                             onValueChange = {surname = it},
@@ -126,7 +130,8 @@ class RegistrationActivity : ComponentActivity() {
                                 unfocusedTextColor = fontColor
                             ),
                             modifier = Modifier
-                                .fillMaxWidth(0.8f))
+                                .fillMaxWidth(0.8f)
+                                .testTag("pavarde"))
                         Spacer(modifier = Modifier.size(16.dp))
                         OutlinedTextField(
                             value = emailAddress,
@@ -138,7 +143,8 @@ class RegistrationActivity : ComponentActivity() {
                                 unfocusedTextColor = fontColor
                             ),
                             modifier = Modifier
-                                .fillMaxWidth(0.8f),
+                                .fillMaxWidth(0.8f)
+                                .testTag("pastas"),
                         )
                         Spacer(modifier = Modifier.size(16.dp))
                         OutlinedTextField(
@@ -148,7 +154,8 @@ class RegistrationActivity : ComponentActivity() {
                             singleLine = true,
                             visualTransformation = if(showPassword) PasswordVisualTransformation() else VisualTransformation.None,
                             modifier = Modifier
-                                .fillMaxWidth(0.8f),
+                                .fillMaxWidth(0.8f)
+                                .testTag("slaptazodis"),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = fontColor,
                                 unfocusedTextColor = fontColor
@@ -182,7 +189,11 @@ class RegistrationActivity : ComponentActivity() {
                                         user.name = name.text
                                         user.surname = surname.text
                                         user.email = emailAddress.text
-                                        mainViewModel.saveUser(user)
+                                        val t = measureTimeMillis {
+                                            mainViewModel.saveUser(user)
+                                        }
+                                        //Log.e("Time saveUser", t.toString())
+
 
                                         Log.d(TAG, "registerInWithEmail:success")
                                         Toast.makeText(context, "Registracija sėkminga", Toast.LENGTH_SHORT).show()
@@ -201,6 +212,7 @@ class RegistrationActivity : ComponentActivity() {
                             modifier = Modifier
                                 .fillMaxWidth(0.6f)
                                 .height(46.dp)
+                                .testTag("reg")
                         ) {
                             Text("Registruotis", fontSize = 16.sp, color = Color.White)
                         }
@@ -214,7 +226,7 @@ class RegistrationActivity : ComponentActivity() {
                                 .fillMaxWidth(0.6f)
                                 .height(46.dp)
                         ) {
-                            Text("Gryžti", fontSize = 16.sp, color = Color(0xFF837F88))
+                            Text("Grįžti", fontSize = 16.sp, color = Color(0xFF837F88))
                         }
 
                         Spacer(modifier = Modifier.size(200.dp))

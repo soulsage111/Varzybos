@@ -15,9 +15,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -55,6 +59,7 @@ import com.app.varzybos.MainViewModel
 import com.app.varzybos.data.Event
 import com.app.varzybos.tasks.StartEventTaskActivity
 import com.google.firebase.storage.FirebaseStorage
+import kotlin.system.measureTimeMillis
 
 
 class EventActivity: ComponentActivity() {
@@ -74,7 +79,11 @@ class EventActivity: ComponentActivity() {
                     mainViewModel.initFirestore()
                     var intent = activity.intent
                     var eventId = intent.getStringExtra("eventId")
-                    var globalEvent : Event = eventId?.let { mainViewModel.getEventFromId(it) }!!
+                    lateinit var globalEvent: Event
+                    val t = measureTimeMillis {
+                        globalEvent = eventId?.let { mainViewModel.getEventFromId(it) }!!
+                    }
+                    //Log.e("Time getEventFromId", t.toString())
                     var imageByteArray = ByteArray(1024*1024)
                     val context = LocalContext.current
 
@@ -140,7 +149,12 @@ class EventActivity: ComponentActivity() {
 
                                     Text(com.app.varzybos.chat.millisToDate(globalEvent.eventDate.toInstant().toEpochMilli()), Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
 
-                                    Column(Modifier.fillMaxWidth().padding(20.dp)){
+                                    Column(
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(20.dp)
+                                            .verticalScroll(rememberScrollState())
+                                            .weight(weight = 1f, fill = false)){
                                         Text("Aprašymas:", fontWeight = FontWeight.Bold)
                                         Text(globalEvent.description)
                                     }
@@ -155,12 +169,16 @@ class EventActivity: ComponentActivity() {
                                             Text("Dalyvauti", fontSize = 16.sp, color = Color.White)
                                         }
                                     } else {
-                                        var registered = mainViewModel.isRegisteredToEvent(eventId)
+                                        var registered = mainViewModel.isRegisteredToEvent(eventId!!)
 
 
                                         Button(
                                             onClick = {
-                                                mainViewModel.registerUserToEvent(eventId)
+                                                val tm = measureTimeMillis {
+                                                    mainViewModel.registerUserToEvent(eventId)
+                                                }
+                                                //Log.e("Time registerUserToEvent", tm.toString())
+
                                                 finish()
                                             },
                                             enabled = !registered
@@ -179,6 +197,7 @@ class EventActivity: ComponentActivity() {
                                                 Text("Išsiregistruoti", fontSize = 16.sp, color = Color(0xFF837F88))
                                             }
                                         }
+                                        Spacer(modifier = Modifier.size(20.dp))
                                     }
                                 }
                             }

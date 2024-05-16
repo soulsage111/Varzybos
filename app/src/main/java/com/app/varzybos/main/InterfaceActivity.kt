@@ -25,8 +25,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.Message
+import androidx.compose.material.icons.filled.Attractions
+import androidx.compose.material.icons.filled.Brightness1
+import androidx.compose.material.icons.filled.ChecklistRtl
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -63,6 +68,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
@@ -80,28 +86,30 @@ import com.app.varzybos.chat.ChatActivity
 import com.app.varzybos.data.Event
 import com.app.varzybos.data.User
 import com.app.varzybos.UserSingleton
+import com.app.varzybos.chat.millisToDate
 import com.app.varzybos.events.EventActivity
 import com.app.varzybos.ui.theme.VarzybosTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
+import org.koin.core.time.measureDuration
+import kotlin.system.measureTimeMillis
 
 @ExperimentalMaterial3Api
 
 class InterfaceActivity : ComponentActivity() {
-@RequiresApi(Build.VERSION_CODES.O)
-override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    setContent {
-        VarzybosTheme {
-            Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-            ) {
-                Interface()
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            VarzybosTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
+                ) {
+                    Interface()
+                }
             }
         }
-    }
     }
 }
 
@@ -112,10 +120,14 @@ override fun onCreate(savedInstanceState: Bundle?) {
 @Composable
 private fun Interface(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val mainViewModel : MainViewModel by viewModel<MainViewModel>()
+    val mainViewModel: MainViewModel by viewModel<MainViewModel>()
     mainViewModel.initFirestore()
     mainViewModel.updateEvents()
-    FirebaseAuth.getInstance().currentUser?.let { it1 -> UserSingleton.initialize(it1, mainViewModel) }
+    FirebaseAuth.getInstance().currentUser?.let { it1 ->
+        UserSingleton.initialize(
+            it1, mainViewModel
+        )
+    }
 
     var u = User()
     u.id = FirebaseAuth.getInstance().currentUser?.uid.toString()
@@ -127,9 +139,7 @@ private fun Interface(modifier: Modifier = Modifier) {
     var scope = rememberCoroutineScope()
     var selectedItem by remember { mutableIntStateOf(0) }
     val items = listOf(
-        Screen.Renginiai,
-        Screen.ManoRenginiai,
-        Screen.Pranesimai
+        Screen.Renginiai, Screen.ManoRenginiai, Screen.Pranesimai
     )
 
     var drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -139,80 +149,82 @@ private fun Interface(modifier: Modifier = Modifier) {
     ModalNavigationDrawer(
         drawerContent = {
             ModalDrawerSheet {
-                Text(UserSingleton.name + " " + UserSingleton.surname, modifier = Modifier.padding(16.dp))
-                HorizontalDivider()
-                NavigationDrawerItem(
-                    label = { Text(text = "Settings") },
-                    icon = {Icon(Icons.Filled.Settings, "settings")},
-                    selected = false,
-                    onClick = { /*TODO*/ }
+                Text(
+                    UserSingleton.name + " " + UserSingleton.surname,
+                    modifier = Modifier.padding(16.dp)
                 )
-                NavigationDrawerItem(
-                    label = { Text(text = "Atsijungti") },
+                HorizontalDivider()
+//                NavigationDrawerItem(label = { Text(text = "Settings") },
+//                    icon = { Icon(Icons.Filled.Settings, "settings") },
+//                    selected = false,
+//                    onClick = { /*TODO*/ })
+                NavigationDrawerItem(label = { Text(text = "Atsijungti") },
                     selected = false,
-                    icon = {Icon(Icons.AutoMirrored.Filled.ExitToApp, "log-out")},
+                    icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, "log-out") },
                     onClick = {
 
                         var auth = FirebaseAuth.getInstance()
                         auth.signOut()
                         val packageManager: PackageManager = context.packageManager
-                        val intent: Intent = packageManager.getLaunchIntentForPackage(context.packageName)!!
+                        val intent: Intent =
+                            packageManager.getLaunchIntentForPackage(context.packageName)!!
                         val componentName: ComponentName = intent.component!!
                         val restartIntent: Intent = Intent.makeRestartActivityTask(componentName)
                         context.startActivity(restartIntent)
                         Runtime.getRuntime().exit(0)
-                    }
-                )
+                    })
+
             }
-        },
-        drawerState = drawerState
+        }, drawerState = drawerState
     ) {
-        Scaffold(
-            modifier =
-            Modifier
-                .fillMaxSize(),
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Image(
-                            painter = painterResource(R.drawable.logo),
-                            "Logo",
-                            Modifier.height(70.dp)
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                drawerState.open()
-                            }
-                        }) {
-                            Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { mainViewModel.updateEvents() }) {
-                            Icon(imageVector = Icons.Default.Refresh, contentDescription = "Menu")
-                        }
-                    }
+        Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
+            CenterAlignedTopAppBar(title = {
+                Image(
+                    painter = painterResource(R.drawable.logo), "Logo", Modifier.height(70.dp)
                 )
-            },
-            bottomBar = {
-                NavigationBar(
-                ) {
-                    items.forEachIndexed { index, item ->
-                        NavigationBarItem(
-                            icon = { Icon(Icons.Filled.Favorite, contentDescription = item.route) },
-                            label = { Text(item.route) },
-                            selected = selectedItem == index,
-                            onClick = {
-                                mainViewModel.updateEvents()
-                                selectedItem = index
-                                navController.navigate(item.route)
-                            })
+            }, navigationIcon = {
+                IconButton(onClick = {
+                    scope.launch {
+                        drawerState.open()
                     }
+                }) {
+                    Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
+                }
+            }, actions = {
+                IconButton(onClick = { mainViewModel.updateEvents() }) {
+                    Icon(imageVector = Icons.Default.Refresh, contentDescription = "Menu")
+                }
+            })
+        }, bottomBar = {
+            NavigationBar(
+            ) {
+                items.forEachIndexed { index, item ->
+                    NavigationBarItem(icon = {
+                        var ico = Icons.Filled.Brightness1
+                        if (item == Screen.Renginiai) {
+                            ico = Icons.Filled.Attractions
+                        }
+                        if (item == Screen.ManoRenginiai) {
+                            ico = Icons.Filled.ChecklistRtl
+                        }
+                        if (item == Screen.Pranesimai) {
+                            ico = Icons.AutoMirrored.Filled.Message
+                        }
+                        Icon(ico, contentDescription = item.route)
+                    },
+                        label = { Text(item.route) },
+                        selected = selectedItem == index,
+                        onClick = {
+                            mainViewModel.updateEvents()
+                            selectedItem = index
+                            navController.navigate(item.route)
+
+                        },
+                        modifier = modifier.testTag(item.route)
+                    )
                 }
             }
-        ) { values ->
+        }) { values ->
             NavHost(navController = navController, startDestination = Screen.Renginiai.route) {
                 composable(route = Screen.Renginiai.route) {
                     EventList(mainViewModel.eventList, values, mainViewModel)
@@ -230,21 +242,25 @@ private fun Interface(modifier: Modifier = Modifier) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues, mainViewModel: MainViewModel){
+private fun EventList(
+    eventList: SnapshotStateList<Event>, values: PaddingValues, mainViewModel: MainViewModel
+) {
     var context = LocalContext.current
 
     val storageRef = FirebaseStorage.getInstance().getReference()
 
-    LazyColumn(modifier = Modifier
-        .fillMaxSize()
-        .padding(values),
-        horizontalAlignment = Alignment.CenterHorizontally) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(values),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         items(items = eventList.toList()) { item ->
 
             var sizeImage by remember { mutableStateOf(IntSize.Zero) }
             val gradient = Brush.verticalGradient(
                 colors = listOf(Color.Transparent, MaterialTheme.colorScheme.background),
-                startY = sizeImage.height.toFloat()/2,  // 1/3
+                startY = sizeImage.height.toFloat() / 2,  // 1/3
                 endY = sizeImage.height.toFloat()
             )
 
@@ -252,27 +268,29 @@ private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues
             var imageUri by remember {
                 mutableStateOf(Uri.parse(""))
             }
-            var imageTask = islandRef.downloadUrl.addOnSuccessListener {uri ->
+            var imageTask = islandRef.downloadUrl.addOnSuccessListener { uri ->
                 imageUri = uri
-            }.addOnFailureListener{e ->
+            }.addOnFailureListener { e ->
                 Log.w(TAG, "Failed to retrieve image Uri", e)
             }
 
             //eventItem(event = item)
-            if(item.eventDate.toInstant().toEpochMilli() > System.currentTimeMillis() || (item.registeredUsers.contains(FirebaseAuth.getInstance().currentUser?.uid!!) && !item.closed)){
+            if (item.eventDate.toInstant()
+                    .toEpochMilli() > System.currentTimeMillis() || (item.registeredUsers.contains(
+                    FirebaseAuth.getInstance().currentUser?.uid!!
+                ) && !item.closed)
+            ) {
                 var pressOffset by remember {
                     mutableStateOf(DpOffset.Zero)
                 }
-                ElevatedCard (modifier = Modifier.pointerInput(true){
-                    detectTapGestures(
-                        onPress = {
+                ElevatedCard(modifier = Modifier
+                    .pointerInput(true) {
+                        detectTapGestures(onPress = {
                             pressOffset = DpOffset(it.x.toDp(), it.y.toDp())
-                        }
-                    )
-                },
-                    ) {
-                    AsyncImage(
-                        model = imageUri,
+                        })
+                    }
+                    .padding(5.dp)) {
+                    AsyncImage(model = imageUri,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -280,17 +298,20 @@ private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues
                                 sizeImage = it.size
                             }
                             .height(200.dp)
-                            .fillMaxWidth()
-                    )
-                    ListItem(
-                        headlineContent = { Text(item.eventName) },
-                        supportingContent = { Text("Eventas") },
-                        modifier = Modifier.clickable(onClick = {
-                            Log.e(ContentValues.TAG, "Pasiclickino")
-                            var intent = Intent(context, EventActivity::class.java)
-                            intent.putExtra("eventId", item.eventId)
-                            context.startActivity(intent)
-                        })
+                            .fillMaxWidth())
+                    ListItem(headlineContent = { Text(item.eventName) }, supportingContent = {
+                        Text(
+                            millisToDate(
+                                item.eventDate.toInstant().toEpochMilli()
+                            )
+                        )
+                    }, modifier = Modifier.clickable(onClick = {
+
+                        var intent = Intent(context, EventActivity::class.java)
+                        intent.putExtra("eventId", item.eventId)
+                        System.currentTimeMillis()
+                        context.startActivity(intent)
+                    })
                     )
                 }
             }

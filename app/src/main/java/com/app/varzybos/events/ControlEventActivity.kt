@@ -125,6 +125,7 @@ class ControlEventActivity : ComponentActivity() {
                                                     mainViewModel.stoppedEvent(
                                                         eventId, false
                                                     )
+                                                    isContextMenuVisible = false
                                                 })
                                         } else {
                                             DropdownMenuItem(text = {
@@ -135,6 +136,7 @@ class ControlEventActivity : ComponentActivity() {
                                                 mainViewModel.stoppedEvent(
                                                     eventId, true
                                                 )
+                                                isContextMenuVisible = false
                                             })
                                         }
 
@@ -205,7 +207,7 @@ private fun UserList(
                 }
                 ListItem(headlineContent = { Text(item.name + " " + item.surname) },
                     supportingContent = {
-                        Text("El. Paštas: " + item.email + "\nMokėjimo statusas: " + "kazkoks bus")
+                        Text("El. Paštas: " + item.email )
                     },
                     modifier = Modifier.clickable(onClick = {
 

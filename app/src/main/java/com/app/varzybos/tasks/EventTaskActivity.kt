@@ -8,9 +8,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -105,14 +108,19 @@ class EventTaskActivity: ComponentActivity() {
                             )
                         },
                         bottomBar = {
-                            Button(onClick = {
-                                var intent = Intent(context, EventTaskCreateActivity::class.java)
-                                taskLauncher.launch(intent)
+                            Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                                Button(onClick = {
+                                    var intent = Intent(context, EventTaskCreateActivity::class.java)
+                                    taskLauncher.launch(intent)
 
-                                //prideti uzduoti
-                            }) {
-                                Image(Icons.Default.Add, contentDescription ="")
+                                    //prideti uzduoti
+                                },
+                                    Modifier.fillMaxWidth(0.5f)) {
+                                    Image(Icons.Default.Add, contentDescription ="")
+                                }
+
                             }
+
                         }
                     ){values ->
                         ListTasks(values, taskList) { name: String ->

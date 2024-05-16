@@ -1,6 +1,7 @@
 package com.app.varzybos.chat
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -57,6 +58,7 @@ import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlin.system.measureTimeMillis
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -114,7 +116,7 @@ fun ChatActivity(values: PaddingValues) {
 
                         var color = Color.Black
                         if (runBlocking { mainViewModel.isAdmin(item.email) }) {
-                            color = Color.Green
+                            color = MaterialTheme.colorScheme.error
                         }
 
                         ListItem(
@@ -240,9 +242,14 @@ fun ChatView(reciever: User, messages: ArrayList<Message>, mainViewModel: MainVi
             trailingIcon = {
                 IconButton(onClick = {
                     if (textFieldValue != TextFieldValue("")) {
-                        mainViewModel.sendMessage(
-                            textFieldValue.text, reciever.id
-                        )
+                        val t = measureTimeMillis {
+                            mainViewModel.sendMessage(
+                                textFieldValue.text, reciever.id
+                            )
+                        }
+                        //Log.e("Time sendMessage", t.toString())
+
+
                         textFieldValue = TextFieldValue("")
                     }
 

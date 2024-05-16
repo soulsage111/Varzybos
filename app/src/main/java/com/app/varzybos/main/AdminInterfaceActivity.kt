@@ -24,8 +24,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.Message
+import androidx.compose.material.icons.filled.Attractions
+import androidx.compose.material.icons.filled.Brightness1
+import androidx.compose.material.icons.filled.ChecklistRtl
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Man
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
@@ -75,6 +80,7 @@ import androidx.navigation.compose.rememberNavController
 import com.app.varzybos.AdminScreen
 import com.app.varzybos.MainViewModel
 import com.app.varzybos.R
+import com.app.varzybos.Screen
 import com.app.varzybos.chat.ChatActivity
 import com.app.varzybos.data.Event
 import com.app.varzybos.data.User
@@ -151,7 +157,7 @@ private fun Interface(modifier: Modifier = Modifier) {
                 Text(UserSingleton.name + " " + UserSingleton.surname, modifier = Modifier.padding(16.dp))
                 HorizontalDivider()
                 NavigationDrawerItem(
-                    label = { Text(text = "Settings") },
+                    label = { Text(text = "Nustatymai") },
                     icon = {Icon(Icons.Filled.Settings, "settings")},
                     selected = false,
                     onClick = { /*TODO*/ }
@@ -215,7 +221,18 @@ private fun Interface(modifier: Modifier = Modifier) {
                 ) {
                     items.forEachIndexed { index, item ->
                         NavigationBarItem(
-                            icon = { Icon(Icons.Filled.Favorite, contentDescription = item.route) },
+                            icon = {
+                                var ico = Icons.Filled.Brightness1
+                                if(item == AdminScreen.Renginiai){
+                                    ico = Icons.Filled.Attractions
+                                }
+                                if(item == AdminScreen.Vartotojai){
+                                    ico = Icons.Filled.Man
+                                }
+                                if(item == AdminScreen.Pranesimai){
+                                    ico = Icons.AutoMirrored.Filled.Message
+                                }
+                                Icon(ico, contentDescription = item.route) },
                             label = { Text(item.route) },
                             selected = selectedItem == index,
                             onClick = {
@@ -251,11 +268,6 @@ private fun Interface(modifier: Modifier = Modifier) {
                     actionButtonEnabled = false
                     ChatActivity(values)
                 }
-            }
-
-            LaunchedEffect(true) {
-                //Do something when List end has been reached
-                Toast.makeText(context, "ei", Toast.LENGTH_SHORT).show()
             }
 
             Spacer(modifier = Modifier.padding(100.dp))
