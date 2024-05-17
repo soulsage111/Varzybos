@@ -18,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import okhttp3.OkHttpClient
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.UUID
@@ -31,6 +32,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var currentUserList: SnapshotStateList<User> = mutableStateListOf()
 
     lateinit var firestore: FirebaseFirestore
+    var httpClient = OkHttpClient()
 
 
     fun getDateTime(s: String): String? {

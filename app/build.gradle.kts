@@ -101,6 +101,10 @@ dependencies {
     implementation("com.github.MKergall:osmbonuspack:6.9.0")
     implementation("org.osmdroid:osmdroid-android:6.1.13")
     implementation(platform("androidx.compose:compose-bom:2024.05.00"))
+    implementation("com.google.maps.android:maps-compose:4.4.1")
+    implementation("com.google.maps.android:maps-compose-widgets:4.4.1")
+    implementation("com.google.maps:google-maps-services:2.2.0")
+    implementation("org.slf4j:slf4j-simple:1.7.25")
     val nav_version = "2.7.6"
     // Kotlin
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
