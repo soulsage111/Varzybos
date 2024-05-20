@@ -105,6 +105,7 @@ dependencies {
     implementation("com.google.maps.android:maps-compose-widgets:4.4.1")
     implementation("com.google.maps:google-maps-services:2.2.0")
     implementation("org.slf4j:slf4j-simple:1.7.25")
+    implementation("pub.devrel:easypermissions:3.0.0")
     val nav_version = "2.7.6"
     // Kotlin
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")

@@ -2,12 +2,10 @@ package com.app.varzybos.events
 
 import android.app.Activity
 import android.content.ContentValues
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -22,7 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -50,7 +48,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.varzybos.MainViewModel
@@ -59,9 +56,7 @@ import com.app.varzybos.data.Event
 import com.app.varzybos.data.User
 import com.app.varzybos.tasks.AdministratorEventTaskActivity
 import com.app.varzybos.tasks.AdministratorEventTaskEvaluationActivity
-import com.app.varzybos.tasks.EventTaskActivity
 import com.app.varzybos.ui.theme.VarzybosTheme
-import com.google.firebase.auth.FirebaseAuth
 
 class ControlEventActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -103,7 +98,7 @@ class ControlEventActivity : ComponentActivity() {
                                     activity.finish()
                                 }) {
                                     Icon(
-                                        imageVector = Icons.Default.ArrowBack,
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = "Back"
                                     )
                                 }
@@ -146,7 +141,7 @@ class ControlEventActivity : ComponentActivity() {
                     }
 
                     ) { pad ->
-                        if (mainViewModel.isEventStopped(eventId)){
+                        if (mainViewModel.isEventStopped(eventId)) {
                             UserEvaluationList(
                                 userList = mainViewModel.currentUserList,
                                 values = pad,
@@ -161,7 +156,6 @@ class ControlEventActivity : ComponentActivity() {
                                 eventId
                             )
                         }
-
 
 
                     }
@@ -207,12 +201,15 @@ private fun UserList(
                 }
                 ListItem(headlineContent = { Text(item.name + " " + item.surname) },
                     supportingContent = {
-                        Text("El. Paštas: " + item.email )
+                        Text("El. Paštas: " + item.email)
                     },
                     modifier = Modifier.clickable(onClick = {
 
-                        if (mainViewModel.isEventStopped(eventId)){
-                            var intent = Intent(context, AdministratorEventTaskEvaluationActivity::class.java)
+                        if (mainViewModel.isEventStopped(eventId)) {
+                            var intent = Intent(
+                                context,
+                                AdministratorEventTaskEvaluationActivity::class.java
+                            )
                             intent.putExtra("eventId", eventId)
                             intent.putExtra("userId", item.id)
                             context.startActivity(intent)
@@ -295,7 +292,8 @@ private fun UserEvaluationList(
                     },
                     modifier = Modifier.clickable(onClick = {
                         Log.e(ContentValues.TAG, "Pasiclickino")
-                        var intent = Intent(context, AdministratorEventTaskEvaluationActivity::class.java)
+                        var intent =
+                            Intent(context, AdministratorEventTaskEvaluationActivity::class.java)
                         intent.putExtra("eventId", eventId)
                         intent.putExtra("userId", item.id)
                         context.startActivity(intent)

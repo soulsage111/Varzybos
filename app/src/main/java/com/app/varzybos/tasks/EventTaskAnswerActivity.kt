@@ -6,6 +6,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,8 +17,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,7 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -44,7 +45,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.varzybos.MainViewModel
 import com.app.varzybos.R
+import com.app.varzybos.map.MapActivity
 import com.app.varzybos.ui.theme.VarzybosTheme
+import org.osmdroid.util.GeoPoint
 import java.util.UUID
 
 class EventTaskAnswerActivity : ComponentActivity() {
@@ -63,12 +66,13 @@ class EventTaskAnswerActivity : ComponentActivity() {
                     var taskName = intent.getStringExtra("taskName")!!
                     var taskDescription = intent.getStringExtra("taskDescription")!!
                     var taskId = intent.getStringExtra("taskId")!!
-                    val mainViewModel : MainViewModel by viewModel<MainViewModel>()
+                    var pointList = intent.getSerializableExtra("pointList") as ArrayList<GeoPoint>
+                    val mainViewModel: MainViewModel by viewModel<MainViewModel>()
                     mainViewModel.initFirestore()
-                    var globalEvent = eventId?.let { mainViewModel.getEventFromId(it) }!!
+                    var globalEvent = eventId.let { mainViewModel.getEventFromId(it) }
                     val context = LocalContext.current
 
-                    var answer by remember { mutableStateOf(TextFieldValue(""))}
+                    var answer by remember { mutableStateOf(TextFieldValue("")) }
 
                     answer = TextFieldValue(mainViewModel.getAnswer(taskId).answer)
 
@@ -92,7 +96,7 @@ class EventTaskAnswerActivity : ComponentActivity() {
                                         finish()
                                     }) {
                                         Icon(
-                                            imageVector = Icons.Default.ArrowBack,
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                             contentDescription = "Back"
                                         )
                                     }
@@ -100,7 +104,10 @@ class EventTaskAnswerActivity : ComponentActivity() {
                             )
                         }
                     ) { values ->
-                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(values)) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(values)
+                        ) {
                             Text(
                                 taskName,
                                 Modifier.fillMaxWidth(),
@@ -117,14 +124,43 @@ class EventTaskAnswerActivity : ComponentActivity() {
                             OutlinedTextField(
                                 value = answer,
                                 onValueChange = { answer = it },
-                                placeholder = {Text("Atsakymas")},
+                                placeholder = { Text("Atsakymas") },
                                 modifier = Modifier
                                     .fillMaxWidth(0.8f)
                             )
+                            if (pointList.isNotEmpty()) {
+                                Spacer(modifier = Modifier.size(16.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .size(100.dp)
+                                        .clickable(onClick = {
+                                            //navController.navigate("MapRoute")
+                                            var mapIntent = Intent(context, MapActivity::class.java)
+                                            mapIntent.putExtra("pointList", pointList)
+                                            context.startActivity(mapIntent)
+                                        })
+                                        .background(color = Color.Gray),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Map,
+                                        contentDescription = "Map",
+                                        modifier = Modifier.size(48.dp),
+                                        tint = Color.White
+                                    )
+                                }
+                                Spacer(modifier = Modifier.size(16.dp))
+                            }
+
 
                             Button(
                                 onClick = {
-                                    mainViewModel.saveAnswer(globalEvent.eventId, taskId, UUID.randomUUID().toString(), answer.text)
+                                    mainViewModel.saveAnswer(
+                                        globalEvent.eventId,
+                                        taskId,
+                                        UUID.randomUUID().toString(),
+                                        answer.text
+                                    )
                                     finish()
                                 }
                             ) {

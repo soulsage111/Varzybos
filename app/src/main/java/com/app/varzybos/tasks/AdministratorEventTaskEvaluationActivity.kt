@@ -2,17 +2,13 @@ package com.app.varzybos.tasks
 
 import android.app.Activity
 import android.content.ContentValues.TAG
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,10 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,7 +30,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,8 +48,6 @@ import com.app.varzybos.R
 import com.app.varzybos.data.Answer
 import com.app.varzybos.data.EventTask
 import com.app.varzybos.ui.theme.VarzybosTheme
-import com.google.firebase.auth.FirebaseAuth
-import java.util.UUID
 
 class AdministratorEventTaskEvaluationActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -98,13 +89,16 @@ class AdministratorEventTaskEvaluationActivity : ComponentActivity() {
                                     activity.finish()
                                 }) {
                                     Icon(
-                                        imageVector = Icons.Default.ArrowBack,
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = "Back"
                                     )
                                 }
                             })
                     }) { values ->
-                        LazyColumn(Modifier.padding(values), horizontalAlignment = Alignment.CenterHorizontally) {
+                        LazyColumn(
+                            Modifier.padding(values),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
                             items(taskList) { task ->
                                 var textFieldValue by remember {
                                     mutableStateOf(TextFieldValue(""))
@@ -117,14 +111,17 @@ class AdministratorEventTaskEvaluationActivity : ComponentActivity() {
                                         supportingContent = {
                                             Text(
                                                 task.taskDescription + "\nAtsakymas:\n" + findAnswer(
-                                                    task.taskId, answers!!
+                                                    task.taskId, answers
                                                 )
                                             )
                                         })
-                                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
                                         OutlinedTextField(value = textFieldValue,
                                             onValueChange = { it ->
-                                            textFieldValue = it
+                                                textFieldValue = it
                                                 var score = 0L
                                                 try {
                                                     score = textFieldValue.text.toLong()
@@ -138,7 +135,7 @@ class AdministratorEventTaskEvaluationActivity : ComponentActivity() {
                                                     ).show()
                                                     Log.w(TAG, "ScoreAnswer:failure", e)
                                                 }
-                                        })
+                                            })
 
                                     }
                                     Spacer(modifier = Modifier.padding(10.dp))
@@ -148,7 +145,7 @@ class AdministratorEventTaskEvaluationActivity : ComponentActivity() {
                                 Button(onClick = {
                                     answers.forEach { item ->
                                         mainViewModel.scoreAnswer(
-                                            item.eventId, item.taskId, item.answerId, item.score
+                                            item.answerId, item.score
                                         )
                                     }
 

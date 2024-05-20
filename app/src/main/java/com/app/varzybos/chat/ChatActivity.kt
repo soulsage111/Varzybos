@@ -1,7 +1,6 @@
 package com.app.varzybos.chat
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -50,9 +49,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.app.varzybos.MainViewModel
-import com.app.varzybos.data.User
 import com.app.varzybos.UserSingleton
 import com.app.varzybos.data.Message
+import com.app.varzybos.data.User
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
@@ -123,7 +122,8 @@ fun ChatActivity(values: PaddingValues) {
                             headlineContent = {
                                 Text(
                                     item.name + " " + item.surname,
-                                    color = color)
+                                    color = color
+                                )
                             },
                             supportingContent = { Text(item.email) },
                             modifier = Modifier.clickable(onClick = {

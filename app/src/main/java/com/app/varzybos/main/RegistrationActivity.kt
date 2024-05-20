@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.varzybos.MainViewModel
 import com.app.varzybos.R
-import com.app.varzybos.data.Event
 import com.app.varzybos.data.User
 import com.app.varzybos.ui.theme.VarzybosTheme
 import com.google.firebase.auth.FirebaseAuth
@@ -82,11 +81,11 @@ class RegistrationActivity : ComponentActivity() {
                         mutableStateOf(TextFieldValue(""))
                     }
                     var showPassword by remember { mutableStateOf(value = true) }
-                    val fontColor = Color.DarkGray;
+                    val fontColor = Color.DarkGray
                     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
                     val context = LocalContext.current
 
-                    val mainViewModel : MainViewModel by viewModel<MainViewModel>()
+                    val mainViewModel: MainViewModel by viewModel<MainViewModel>()
                     mainViewModel.initFirestore()
 
                     fun isValidEmail(email: String): Boolean {
@@ -100,7 +99,7 @@ class RegistrationActivity : ComponentActivity() {
                             .background(color = Color(0xFFFFFFFF)),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
-                    ){
+                    ) {
                         Image(
                             painter = image,
                             contentDescription = null,
@@ -109,9 +108,10 @@ class RegistrationActivity : ComponentActivity() {
                                 .width(168.dp)
                                 .height(187.dp)
                         )
-                        OutlinedTextField(value = name,
-                            onValueChange = {name = it},
-                            placeholder = { Text("Vardas")},
+                        OutlinedTextField(
+                            value = name,
+                            onValueChange = { name = it },
+                            placeholder = { Text("Vardas") },
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = fontColor,
@@ -119,11 +119,13 @@ class RegistrationActivity : ComponentActivity() {
                             ),
                             modifier = Modifier
                                 .fillMaxWidth(0.8f)
-                                .testTag("vardas"))
+                                .testTag("vardas")
+                        )
                         Spacer(modifier = Modifier.size(16.dp))
-                        OutlinedTextField(value = surname,
-                            onValueChange = {surname = it},
-                            placeholder = { Text("Pavardė")},
+                        OutlinedTextField(
+                            value = surname,
+                            onValueChange = { surname = it },
+                            placeholder = { Text("Pavardė") },
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = fontColor,
@@ -131,12 +133,13 @@ class RegistrationActivity : ComponentActivity() {
                             ),
                             modifier = Modifier
                                 .fillMaxWidth(0.8f)
-                                .testTag("pavarde"))
+                                .testTag("pavarde")
+                        )
                         Spacer(modifier = Modifier.size(16.dp))
                         OutlinedTextField(
                             value = emailAddress,
                             onValueChange = { emailAddress = it },
-                            placeholder = {Text("El. paštas")},
+                            placeholder = { Text("El. paštas") },
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = fontColor,
@@ -150,9 +153,9 @@ class RegistrationActivity : ComponentActivity() {
                         OutlinedTextField(
                             value = password,
                             onValueChange = { password = it },
-                            placeholder = {Text("Slaptažodis")},
+                            placeholder = { Text("Slaptažodis") },
                             singleLine = true,
-                            visualTransformation = if(showPassword) PasswordVisualTransformation() else VisualTransformation.None,
+                            visualTransformation = if (showPassword) PasswordVisualTransformation() else VisualTransformation.None,
                             modifier = Modifier
                                 .fillMaxWidth(0.8f)
                                 .testTag("slaptazodis"),
@@ -184,8 +187,11 @@ class RegistrationActivity : ComponentActivity() {
                             onClick = {
                                 if (isValidEmail(emailAddress.text)) {
                                     var auth: FirebaseAuth = Firebase.auth
-                                    auth.createUserWithEmailAndPassword(emailAddress.text, password.text).addOnSuccessListener {
-                                        var user: com.app.varzybos.data.User = User()
+                                    auth.createUserWithEmailAndPassword(
+                                        emailAddress.text,
+                                        password.text
+                                    ).addOnSuccessListener {
+                                        var user: User = User()
                                         user.name = name.text
                                         user.surname = surname.text
                                         user.email = emailAddress.text
@@ -196,16 +202,27 @@ class RegistrationActivity : ComponentActivity() {
 
 
                                         Log.d(TAG, "registerInWithEmail:success")
-                                        Toast.makeText(context, "Registracija sėkminga", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Registracija sėkminga",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                         finish()
                                     }.addOnFailureListener {
-                                        Toast.makeText(context, "Registracija nepavyko", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Registracija nepavyko",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                         Log.w(TAG, "registerInWithEmail:failure")
                                     }
 
-                                }
-                                else {
-                                    Toast.makeText(context, "Netinkamas el. pašto adresas", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Netinkamas el. pašto adresas",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6750A4)),

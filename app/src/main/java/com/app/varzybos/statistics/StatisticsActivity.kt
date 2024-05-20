@@ -1,42 +1,27 @@
 package com.app.varzybos.statistics
 
 import android.app.Activity
-import android.content.ContentValues.TAG
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -45,24 +30,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.varzybos.MainViewModel
 import com.app.varzybos.R
-import com.app.varzybos.data.Answer
 import com.app.varzybos.data.EventTask
 import com.app.varzybos.ui.theme.VarzybosTheme
-import com.google.firebase.auth.FirebaseAuth
 import com.jaikeerthick.composable_graphs.composables.line.LineGraph
 import com.jaikeerthick.composable_graphs.composables.line.model.LineData
-import java.util.UUID
 
 class StatisticsActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -104,13 +83,13 @@ class StatisticsActivity : ComponentActivity() {
                                     activity.finish()
                                 }) {
                                     Icon(
-                                        imageVector = Icons.Default.ArrowBack,
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = "Back"
                                     )
                                 }
                             })
                     }) { values ->
-                        if(scores.size != 0){
+                        if (scores.size != 0) {
                             Column(
                                 Modifier
                                     .padding(values)
@@ -147,7 +126,10 @@ class StatisticsActivity : ComponentActivity() {
                                     scores.toSortedMap().forEach {
                                         item {
                                             Row(Modifier.fillMaxWidth()) {
-                                                TableCell(text = name(mainViewModel, it.key), weight = column1Weight)
+                                                TableCell(
+                                                    text = name(mainViewModel, it.key),
+                                                    weight = column1Weight
+                                                )
                                                 TableCell(
                                                     text = it.value.toString(),
                                                     weight = column2Weight
@@ -183,8 +165,8 @@ fun RowScope.TableCell(
 
 fun name(mainViewModel: MainViewModel, userId: String): String {
     mainViewModel.userList.forEach {
-        if (it.id == userId){
-            return it.name+" "+it.surname
+        if (it.id == userId) {
+            return it.name + " " + it.surname
         }
     }
     return ""

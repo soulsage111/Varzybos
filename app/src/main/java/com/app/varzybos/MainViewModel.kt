@@ -3,7 +3,6 @@ package com.app.varzybos
 import android.app.Application
 import android.content.ContentValues.TAG
 import android.util.Log
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.AndroidViewModel
@@ -18,9 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
-import okhttp3.OkHttpClient
-import java.text.SimpleDateFormat
-import java.util.Date
+import org.osmdroid.util.GeoPoint
 import java.util.UUID
 import kotlin.reflect.KProperty
 
@@ -32,32 +29,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var currentUserList: SnapshotStateList<User> = mutableStateListOf()
 
     lateinit var firestore: FirebaseFirestore
-    var httpClient = OkHttpClient()
 
 
-    fun getDateTime(s: String): String? {
-        try {
-            val sdf = SimpleDateFormat("MM/dd/yyyy")
-            val netDate = Date(s.toLong() * 1000)
-            return sdf.format(netDate)
-        } catch (e: Exception) {
-            return e.toString()
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
     private fun getEventsToList(personal: Boolean): SnapshotStateList<Event> {
-        var list: SnapshotStateList<Event> = mutableStateListOf()
+        val list: SnapshotStateList<Event> = mutableStateListOf()
 
         // var context = getApplication<Application>().applicationContext
         // FirebaseApp.initializeApp(context)
 
         try {
-            var out = runBlocking { firestore.collection("Events").get().await() }
-            var queryResult = out.documents
-            queryResult.forEach() { doc ->
-                var map = doc.data
-                var event: Event = Event()
+            val out = runBlocking { firestore.collection("Events").get().await() }
+            val queryResult = out.documents
+            queryResult.forEach { doc ->
+                val map = doc.data
+                val event = Event()
                 if (map != null) {
                     event.eventName = map["eventName"].toString()
                     event.eventId = map["eventId"].toString()
@@ -70,16 +55,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     val d = map["eventDate"] as com.google.firebase.Timestamp
                     event.eventDate = d.toDate()
                     event.registeredUsers = map["registeredUsers"] as ArrayList<String>
-                    if (map!!["eventTasks"] != null) {
+                    if (map["eventTasks"] != null) {
                         var tasks = ArrayList<Map<String, String>>()
                         try {
-                            tasks = map!!["eventTasks"] as ArrayList<Map<String, String>>
+                            tasks = map["eventTasks"] as ArrayList<Map<String, String>>
                         } catch (e: Exception) {
                             Log.e(TAG, "Event task mapping error", e)
                         }
 
-                        tasks.forEach() { task ->
-                            var t = EventTask()
+                        tasks.forEach { task ->
+                            val t = EventTask()
                             t.taskName = task["taskName"].toString()
                             t.taskDescription = task["taskDescription"].toString()
 
@@ -102,14 +87,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun getUsersToList(): SnapshotStateList<User> {
-        var list: SnapshotStateList<User> = mutableStateListOf()
+        val list: SnapshotStateList<User> = mutableStateListOf()
 
         try {
-            var out = runBlocking { firestore.collection("UserInfo").get().await() }
-            var queryResult = out.documents
-            queryResult.forEach() { doc ->
-                var map = doc.data
-                var user = User()
+            val out = runBlocking { firestore.collection("UserInfo").get().await() }
+            val queryResult = out.documents
+            queryResult.forEach { doc ->
+                val map = doc.data
+                val user = User()
                 if (map != null) {
                     user.name = map["name"].toString()
                     user.surname = map["surname"].toString()
@@ -130,27 +115,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun updateEvents() {
         eventList.clear()
         userEventList.clear()
-        var listas = getEventsToList(false)
-        var listas2 = getEventsToList(true)
+        val listas = getEventsToList(false)
+        val listas2 = getEventsToList(true)
         listas.forEach { event: Event -> eventList.add(event) }
         listas2.forEach { event: Event -> userEventList.add(event) }
     }
 
     fun updateUsers() {
         userList.clear()
-        var listas = getUsersToList()
+        val listas = getUsersToList()
         listas.forEach { user: User -> userList.add(user) }
     }
 
     fun getUsersFromList(userListForEvent: ArrayList<String>): SnapshotStateList<User> {
-        var list: SnapshotStateList<User> = mutableStateListOf()
+        val list: SnapshotStateList<User> = mutableStateListOf()
 
         try {
-            var out = runBlocking { firestore.collection("UserInfo").get().await() }
-            var queryResult = out.documents
-            queryResult.forEach() { doc ->
-                var map = doc.data
-                var user = User()
+            val out = runBlocking { firestore.collection("UserInfo").get().await() }
+            val queryResult = out.documents
+            queryResult.forEach { doc ->
+                val map = doc.data
+                val user = User()
                 if (map != null) {
                     user.name = map["name"].toString()
                     user.surname = map["surname"].toString()
@@ -172,8 +157,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun getEventFromId(id: String): Event {
-        var time = System.currentTimeMillis()
-
+        val time = System.currentTimeMillis()
 
 
         var eventData: Map<String, Any>?
@@ -181,7 +165,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             eventData =
                 firestore.collection("Events").document(id).get().await().data
         }
-        var event: Event = Event()
+        val event = Event()
         if (eventData != null) {
             event.eventName = eventData!!["eventName"].toString()
             event.eventId = eventData!!["eventId"].toString()
@@ -202,12 +186,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     Log.e(TAG, "Event task mapping error", e)
                 }
 
-                tasks.forEach() { task ->
-                    var t = EventTask()
+                tasks.forEach { task ->
+                    val t = EventTask()
                     t.taskName = task["taskName"].toString()
                     t.taskDescription = task["taskDescription"].toString()
                     t.taskId = task["taskId"].toString()
                     event.eventTasks.add(t)
+                    if (task["route"] != null) {
+                        val pointHashes =
+                            task["route"] as ArrayList<HashMap<String, Double>>
+                        pointHashes.forEach {
+                            t.route.add(GeoPoint(it["latitude"] as Double, it["longitude"] as Double))
+                        }
+                    }
                 }
             }
         }
@@ -221,7 +212,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun saveEvent(event: Event) {
-        var time = System.currentTimeMillis()
+        val time = System.currentTimeMillis()
 
 
         val document = if (event.eventId.isEmpty()) {
@@ -234,10 +225,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val result = document.set(event)
         result.addOnSuccessListener {
             Log.e("Time saveEvent", (System.currentTimeMillis() - time).toString())
-            Log.d("DatabaseService", "Successfuly created event")
+            Log.d(TAG, "Successfully created event")
         }
         result.addOnFailureListener {
-            Log.d("DatabaseService", "Failed to create event $event")
+            Log.d(TAG, "Failed to create event $event")
         }
     }
 
@@ -247,23 +238,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         val result = document.delete()
         result.addOnSuccessListener {
-            Log.d("DatabaseService", "Successfuly removed event")
+            Log.d(TAG, "Successfully removed event")
         }
         result.addOnFailureListener {
-            Log.d("DatabaseService", "Failed to remove event $event")
+            Log.d(TAG, "Failed to remove event $event")
         }
     }
 
     fun saveUser(user: User) {
-        var time = System.currentTimeMillis()
+        val time = System.currentTimeMillis()
 
         val result = firestore.collection("UserInfo").document(user.email).set(user)
         result.addOnSuccessListener {
             Log.e("Time saveUser", (System.currentTimeMillis() - time).toString())
-            Log.d("DatabaseService", "Successfuly created user")
+            Log.d(TAG, "Successfully created user")
         }
         result.addOnFailureListener {
-            Log.d("DatabaseService", "Failed to create user")
+            Log.d(TAG, "Failed to create user")
         }
     }
 
@@ -271,43 +262,43 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         val result = firestore.collection("UserInfo").document(user.email).set(user)
         result.addOnSuccessListener {
-            Log.d("DatabaseService", "Successfuly created user")
+            Log.d(TAG, "Successfully created user")
         }
         result.addOnFailureListener {
-            Log.d("DatabaseService", "Failed to create user")
+            Log.d(TAG, "Failed to create user")
         }
     }
 
 
     fun registerUserToEvent(eventId: String) {
-        var time = System.currentTimeMillis()
-        var reference = firestore.collection("Events").document(eventId)
+        val time = System.currentTimeMillis()
+        val reference = firestore.collection("Events").document(eventId)
 
-        var document = runBlocking { reference.get().await() }
-        var eventData = document.data
+        val document = runBlocking { reference.get().await() }
+        val eventData = document.data
 
         val currentUser = FirebaseAuth.getInstance().currentUser
 
 
-        var event: Event = Event()
+        val event = Event()
         if (eventData != null) {
-            event.eventName = eventData!!["eventName"].toString()
-            event.eventId = eventData!!["eventId"].toString()
-            event.description = eventData!!["description"].toString()
-            event.closed = eventData!!["closed"] as Boolean
-            val d = eventData!!["eventDate"] as com.google.firebase.Timestamp
+            event.eventName = eventData["eventName"].toString()
+            event.eventId = eventData["eventId"].toString()
+            event.description = eventData["description"].toString()
+            event.closed = eventData["closed"] as Boolean
+            val d = eventData["eventDate"] as com.google.firebase.Timestamp
             event.eventDate = d.toDate()
-            event.registeredUsers = eventData!!["registeredUsers"] as ArrayList<String>
-            if (eventData!!["eventTasks"] != null) {
+            event.registeredUsers = eventData["registeredUsers"] as ArrayList<String>
+            if (eventData["eventTasks"] != null) {
                 var tasks = ArrayList<Map<String, String>>()
                 try {
-                    tasks = eventData!!["eventTasks"] as ArrayList<Map<String, String>>
+                    tasks = eventData["eventTasks"] as ArrayList<Map<String, String>>
                 } catch (e: Exception) {
                     Log.e(TAG, "Event task mapping error", e)
                 }
 
-                tasks.forEach() { task ->
-                    var t = EventTask()
+                tasks.forEach { task ->
+                    val t = EventTask()
                     t.taskName = task["taskName"].toString()
                     t.taskDescription = task["taskDescription"].toString()
                     t.taskId = task["taskId"].toString()
@@ -325,44 +316,44 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val r = reference.set(event)
         r.addOnSuccessListener {
             Log.e("Time registerUserToEvent", (System.currentTimeMillis() - time).toString())
-            Log.d("DatabaseService", "Successfuly created event")
+            Log.d(TAG, "Successfully created event")
         }
         r.addOnFailureListener {
-            Log.d("DatabaseService", "Failed to create event $event")
+            Log.d(TAG, "Failed to create event $event")
         }
     }
 
     fun unregisterUserFromEvent(eventId: String) {
-        var reference = firestore.collection("Events").document(eventId)
+        val reference = firestore.collection("Events").document(eventId)
 
-        var document = runBlocking { reference.get().await() }
-        var eventData = document.data
+        val document = runBlocking { reference.get().await() }
+        val eventData = document.data
 
         val currentUser = FirebaseAuth.getInstance().currentUser
 
-        var event: Event = Event()
+        val event: Event = Event()
         if (eventData != null) {
-            event.eventName = eventData!!["eventName"].toString()
-            event.eventId = eventData!!["eventId"].toString()
-            event.description = eventData!!["description"].toString()
+            event.eventName = eventData["eventName"].toString()
+            event.eventId = eventData["eventId"].toString()
+            event.description = eventData["description"].toString()
             if (eventData["closed"] != null) {
                 event.closed = eventData["closed"] as Boolean
             } else {
                 event.closed = false
             }
-            val d = eventData!!["eventDate"] as com.google.firebase.Timestamp
+            val d = eventData["eventDate"] as com.google.firebase.Timestamp
             event.eventDate = d.toDate()
-            event.registeredUsers = eventData!!["registeredUsers"] as ArrayList<String>
-            if (eventData!!["eventTasks"] != null) {
+            event.registeredUsers = eventData["registeredUsers"] as ArrayList<String>
+            if (eventData["eventTasks"] != null) {
                 var tasks = ArrayList<Map<String, String>>()
                 try {
-                    tasks = eventData!!["eventTasks"] as ArrayList<Map<String, String>>
+                    tasks = eventData["eventTasks"] as ArrayList<Map<String, String>>
                 } catch (e: Exception) {
                     Log.e(TAG, "Event task mapping error", e)
                 }
 
-                tasks.forEach() { task ->
-                    var t = EventTask()
+                tasks.forEach { task ->
+                    val t = EventTask()
                     t.taskName = task["taskName"].toString()
                     t.taskDescription = task["taskDescription"].toString()
                     t.taskId = task["taskId"].toString()
@@ -379,41 +370,41 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         val r = reference.set(event)
         r.addOnSuccessListener {
-            Log.d("DatabaseService", "Successfuly created event")
+            Log.d(TAG, "Successfully created event")
         }
         r.addOnFailureListener {
-            Log.d("DatabaseService", "Failed to create event $event")
+            Log.d(TAG, "Failed to create event $event")
         }
     }
 
     fun stoppedEvent(eventId: String, value: Boolean) {
-        var reference = firestore.collection("Events").document(eventId)
+        val reference = firestore.collection("Events").document(eventId)
 
-        var document = runBlocking { reference.get().await() }
-        var eventData = document.data
+        val document = runBlocking { reference.get().await() }
+        val eventData = document.data
 
         val currentUser = FirebaseAuth.getInstance().currentUser
 
 
-        var event: Event = Event()
+        val event: Event = Event()
         if (eventData != null) {
-            event.eventName = eventData!!["eventName"].toString()
-            event.eventId = eventData!!["eventId"].toString()
-            event.description = eventData!!["description"].toString()
+            event.eventName = eventData["eventName"].toString()
+            event.eventId = eventData["eventId"].toString()
+            event.description = eventData["description"].toString()
             event.closed = value
-            val d = eventData!!["eventDate"] as com.google.firebase.Timestamp
+            val d = eventData["eventDate"] as com.google.firebase.Timestamp
             event.eventDate = d.toDate()
-            event.registeredUsers = eventData!!["registeredUsers"] as ArrayList<String>
-            if (eventData!!["eventTasks"] != null) {
+            event.registeredUsers = eventData["registeredUsers"] as ArrayList<String>
+            if (eventData["eventTasks"] != null) {
                 var tasks = ArrayList<Map<String, String>>()
                 try {
-                    tasks = eventData!!["eventTasks"] as ArrayList<Map<String, String>>
+                    tasks = eventData["eventTasks"] as ArrayList<Map<String, String>>
                 } catch (e: Exception) {
                     Log.e(TAG, "Event task mapping error", e)
                 }
 
-                tasks.forEach() { task ->
-                    var t = EventTask()
+                tasks.forEach { task ->
+                    val t = EventTask()
                     t.taskName = task["taskName"].toString()
                     t.taskDescription = task["taskDescription"].toString()
                     t.taskId = task["taskId"].toString()
@@ -425,19 +416,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         val r = reference.set(event)
         r.addOnSuccessListener {
-            Log.d("DatabaseService", "Successfuly created event")
+            Log.d(TAG, "Successfully created event")
         }
         r.addOnFailureListener {
-            Log.d("DatabaseService", "Failed to create event $event")
+            Log.d(TAG, "Failed to create event $event")
         }
     }
 
 
     fun saveAnswer(eventId: String, taskId: String, answerId: String, answer: String) {
-        var reference = firestore.collection("EventAnswers").document(answerId)
+        val reference = firestore.collection("EventAnswers").document(answerId)
 
-        var document = runBlocking { reference.get().await() }
-        var ans = Answer()
+        val ans = Answer()
         ans.answer = answer
         ans.taskId = taskId
         ans.eventId = eventId
@@ -448,10 +438,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun saveAnswerList(eventId: String, taskId: String, answerId: String, answer: String) {
-        var reference = firestore.collection("EventAnswers").document(answerId)
+        val reference = firestore.collection("EventAnswers").document(answerId)
 
-        var document = runBlocking { reference.get().await() }
-        var ans = Answer()
+        runBlocking { reference.get().await() }
+        val ans = Answer()
         ans.answer = answer
         ans.taskId = taskId
         ans.eventId = eventId
@@ -464,13 +454,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun scoreAnswer(eventId: String, taskId: String, answerId: String, score: Long) {
-        var reference = firestore.collection("EventAnswers").document(answerId)
+    fun scoreAnswer(answerId: String, score: Long) {
+        val reference = firestore.collection("EventAnswers").document(answerId)
 
-        var document = runBlocking { reference.get().await() }
-        var data = document.data
+        val document = runBlocking { reference.get().await() }
+        val data = document.data
 
-        var ans = Answer()
+        val ans = Answer()
         ans.answer = data?.get("answer").toString()
         ans.taskId = data?.get("taskId").toString()
         ans.eventId = data?.get("eventId").toString()
@@ -484,17 +474,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun getAnswersForUser(eventId: String, userId: String): ArrayList<Answer> {
-        var result = ArrayList<Answer>()
-        var reference = firestore.collection("EventAnswers")
+        val result = ArrayList<Answer>()
+        val reference = firestore.collection("EventAnswers")
         var a: QuerySnapshot
         runBlocking {
             a = reference.get().await()
         }
-        a.forEach { it ->
-            var data = it.data
+        a.forEach {
+            val data = it.data
             if (data["eventId"] == eventId) {
                 if (data["userId"] == userId) {
-                    var ans = Answer()
+                    val ans = Answer()
                     ans.answer = data["answer"].toString()
                     ans.taskId = data["taskId"].toString()
                     ans.eventId = data["eventId"].toString()
@@ -515,13 +505,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun getAnswer(answerId: String): Answer {
-        var reference = firestore.collection("EventAnswers").document(answerId)
+        val reference = firestore.collection("EventAnswers").document(answerId)
         var a: DocumentSnapshot
         runBlocking {
             a = reference.get().await()
         }
-        var ans = Answer()
-        var data = a.data
+        val ans = Answer()
+        val data = a.data
         if (data != null) {
             ans.answer = data["answer"].toString()
             ans.taskId = data["taskId"].toString()
@@ -536,21 +526,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun getScores(eventId: String): Map<String, Long> {
-        var result: MutableMap<String, Long> = mutableMapOf()
-        var reference = firestore.collection("EventAnswers")
+        val result: MutableMap<String, Long> = mutableMapOf()
+        val reference = firestore.collection("EventAnswers")
         var a: QuerySnapshot
         runBlocking {
             a = reference.get().await()
         }
-        a.forEach { it ->
-            var data = it.data
+        a.forEach {
+            val data = it.data
             if (data["eventId"] == eventId) {
-                var currentScore = 0L
-                if (result[data["userId"].toString()] != null){
+                val currentScore: Long
+                if (result[data["userId"].toString()] != null) {
                     currentScore = result[data["userId"].toString()]!!
                     result[data["userId"].toString()] = currentScore + data["score"]!! as Long
                 } else {
-                    if (data["score"] != null){
+                    if (data["score"] != null) {
                         result[data["userId"].toString()] = (data["score"]!! as Long)
                     }
                 }
@@ -561,8 +551,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun sendMessage(message: String, to: String) {
-        var time = System.currentTimeMillis()
-        var msg = Message()
+        val time = System.currentTimeMillis()
+        val msg = Message()
         msg.message = message
         msg.timestamp = System.currentTimeMillis()
         msg.id = UUID.randomUUID().toString()
@@ -571,10 +561,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val result = firestore.collection("Messages").document(msg.id).set(msg)
         result.addOnSuccessListener {
             Log.e("Time sendMessage", (System.currentTimeMillis() - time).toString())
-            Log.d("DatabaseService", "Successfuly sent message")
+            Log.d(TAG, "Successfully sent message")
         }
         result.addOnFailureListener {
-            Log.d("DatabaseService", "Failed to send message")
+            Log.d(TAG, "Failed to send message")
         }
     }
 
@@ -588,7 +578,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 //    }
     suspend fun isAdmin(email: String): Boolean {
         try {
-            var value = firestore.collection("Admins").document(email).get().await()
+            val value = firestore.collection("Admins").document(email).get().await()
 
             return value.data!!["isAdmin"] as Boolean
 
@@ -614,7 +604,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             runBlocking {
                 value = firestore.collection("Events").document(eventId).get().await()
             }
-            var a = value!!["registeredUsers"] as ArrayList<String>
+            val a = value["registeredUsers"] as ArrayList<String>
 
             return a.contains(FirebaseAuth.getInstance().currentUser?.uid.toString())
 
@@ -631,7 +621,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             runBlocking {
                 value = firestore.collection("Events").document(eventId).get().await()
             }
-            var a = value!!["closed"] as Boolean
+            val a = value["closed"] as Boolean
 
             return a
 

@@ -8,5 +8,5 @@ import org.koin.dsl.module
 @OptIn(ExperimentalMaterial3Api::class)
 val appModule = module {
     single { MainActivity() }
-    viewModel { MainViewModel(androidApplication())}
+    viewModel { MainViewModel(androidApplication()) }
 }

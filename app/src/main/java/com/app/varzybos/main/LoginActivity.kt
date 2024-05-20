@@ -7,7 +7,10 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,9 +22,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -30,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,38 +50,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.app.varzybos.ui.theme.VarzybosTheme
-import com.google.firebase.FirebaseApp
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.runtime.remember
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import com.app.varzybos.MainViewModel
 import com.app.varzybos.R
 import com.app.varzybos.UserSingleton
 import com.app.varzybos.presentation.sign_in.GoogleAuthUiClient
+import com.app.varzybos.ui.theme.VarzybosTheme
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.tasks.Task
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
 
 @ExperimentalMaterial3Api
@@ -84,6 +84,7 @@ class LoginActivity : ComponentActivity() {
             oneTapClient = Identity.getSignInClient(applicationContext)
         )
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -92,7 +93,7 @@ class LoginActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Login(Modifier,  googleAuthUiClient)
+                    Login(Modifier, googleAuthUiClient)
                 }
             }
         }
@@ -101,7 +102,7 @@ class LoginActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuthUiClient) {
+private fun Login(modifier: Modifier = Modifier, googleAuthUiClient: GoogleAuthUiClient) {
     val image = painterResource(R.drawable.logo)
     var emailAddress by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
@@ -111,9 +112,9 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
     }
     var showPassword by remember { mutableStateOf(value = true) }
     var enableButton by remember { mutableStateOf(value = true) }
-    val fontColor = Color.DarkGray;
+    val fontColor = Color.DarkGray
     val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$"
-    val mainViewModel : MainViewModel by viewModel<MainViewModel>()
+    val mainViewModel: MainViewModel by viewModel<MainViewModel>()
     val localContext = LocalContext.current
 
     fun getGoogleLoginAuth(): GoogleSignInClient {
@@ -137,7 +138,7 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
                 }
             }
         }
-    
+
     fun isValidEmail(email: String): Boolean {
         return email.matches(emailRegex.toRegex())
     }
@@ -149,7 +150,7 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
             .background(color = Color(0xFFFFFFFF)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
-    ){
+    ) {
         Image(
             painter = image,
             contentDescription = null,
@@ -161,7 +162,7 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
         OutlinedTextField(
             value = emailAddress,
             onValueChange = { emailAddress = it },
-            placeholder = {Text("El. paštas")},
+            placeholder = { Text("El. paštas") },
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = fontColor,
@@ -169,14 +170,14 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
             ),
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-            )
+        )
         Spacer(modifier = Modifier.size(16.dp))
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            placeholder = {Text("Slaptažodis")},
+            placeholder = { Text("Slaptažodis") },
             singleLine = true,
-            visualTransformation = if(showPassword) PasswordVisualTransformation() else VisualTransformation.None,
+            visualTransformation = if (showPassword) PasswordVisualTransformation() else VisualTransformation.None,
             modifier = Modifier
                 .fillMaxWidth(0.8f),
             colors = OutlinedTextFieldDefaults.colors(
@@ -189,9 +190,17 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
                     onClick = {
                         var auth = FirebaseAuth.getInstance()
                         auth.sendPasswordResetEmail(emailAddress.text).addOnSuccessListener {
-                            Toast.makeText(localContext, "Slaptažodžio keitimo laiškas išsiūstas", Toast.LENGTH_SHORT).show()
-                        }.addOnFailureListener{e ->
-                            Toast.makeText(localContext, "Nepavyko išsiūsti laiško", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                localContext,
+                                "Slaptažodžio keitimo laiškas išsiūstas",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }.addOnFailureListener { e ->
+                            Toast.makeText(
+                                localContext,
+                                "Nepavyko išsiūsti laiško",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             Log.e(TAG, "password email error", e)
                         }
                     },
@@ -234,34 +243,41 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
                     var auth: FirebaseAuth = Firebase.auth
                     try {
 
-                        auth.signInWithEmailAndPassword(emailAddress.text, password.text).addOnSuccessListener {
-                            //mainViewModel.user.email = emailAddress.text
-                            FirebaseApp.initializeApp(localContext)
-                            mainViewModel.initFirestore()
-                            UserSingleton.initialize(auth.currentUser!!, mainViewModel)
-                            if (runBlocking {mainViewModel.isAdmin(emailAddress.text)}){
-                                var intent = Intent(localContext , AdminInterfaceActivity::class.java)
-                                localContext.startActivity(intent)
-                            } else {
-                                var intent = Intent(localContext , InterfaceActivity::class.java)
-                                localContext.startActivity(intent)
-                            }
-                            enableButton = true
+                        auth.signInWithEmailAndPassword(emailAddress.text, password.text)
+                            .addOnSuccessListener {
+                                //mainViewModel.user.email = emailAddress.text
+                                FirebaseApp.initializeApp(localContext)
+                                mainViewModel.initFirestore()
+                                UserSingleton.initialize(auth.currentUser!!, mainViewModel)
+                                if (runBlocking { mainViewModel.isAdmin(emailAddress.text) }) {
+                                    var intent =
+                                        Intent(localContext, AdminInterfaceActivity::class.java)
+                                    localContext.startActivity(intent)
+                                } else {
+                                    var intent = Intent(localContext, InterfaceActivity::class.java)
+                                    localContext.startActivity(intent)
+                                }
+                                enableButton = true
 
-                        }.addOnFailureListener{e ->
+                            }.addOnFailureListener { e ->
                             Log.w(TAG, "Authorisation failure; ", e)
-                            Toast.makeText(localContext, "Prisijungimas nepavyko", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                localContext,
+                                "Prisijungimas nepavyko",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             enableButton = true
                         }
-                    } catch (e: Exception){
+                    } catch (e: Exception) {
                         Log.w(TAG, "Login failed; ", e)
-                        Toast.makeText(localContext, "Prisijungimas nepavyko", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(localContext, "Prisijungimas nepavyko", Toast.LENGTH_SHORT)
+                            .show()
                         enableButton = true
                     }
-                }
-                else {
+                } else {
                     Log.w(TAG, "Email not valid")
-                    Toast.makeText(localContext, "El. pašto adresas netinkamas", Toast.LENGTH_SHORT).show() // in Activity
+                    Toast.makeText(localContext, "El. pašto adresas netinkamas", Toast.LENGTH_SHORT)
+                        .show() // in Activity
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6750A4)),
@@ -274,7 +290,7 @@ private fun Login(modifier: Modifier = Modifier,  googleAuthUiClient: GoogleAuth
         Spacer(modifier = Modifier.size(1.dp))
         Button(
             onClick = {
-                var intent = Intent(localContext , RegistrationActivity::class.java)
+                var intent = Intent(localContext, RegistrationActivity::class.java)
                 localContext.startActivity(intent)
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFFFFF)),

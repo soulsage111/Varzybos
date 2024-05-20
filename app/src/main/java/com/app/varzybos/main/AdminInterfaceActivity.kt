@@ -1,4 +1,4 @@
-package com.app.varzybos.main;
+package com.app.varzybos.main
 
 import android.annotation.SuppressLint
 import android.content.ComponentName
@@ -27,9 +27,7 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.Attractions
 import androidx.compose.material.icons.filled.Brightness1
-import androidx.compose.material.icons.filled.ChecklistRtl
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Man
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
@@ -57,7 +55,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -80,11 +77,10 @@ import androidx.navigation.compose.rememberNavController
 import com.app.varzybos.AdminScreen
 import com.app.varzybos.MainViewModel
 import com.app.varzybos.R
-import com.app.varzybos.Screen
+import com.app.varzybos.UserSingleton
 import com.app.varzybos.chat.ChatActivity
 import com.app.varzybos.data.Event
 import com.app.varzybos.data.User
-import com.app.varzybos.UserSingleton
 import com.app.varzybos.events.AdministratorEventActivity
 import com.app.varzybos.events.ControlEventActivity
 import com.app.varzybos.events.EventCreationActivity
@@ -96,19 +92,19 @@ import kotlinx.coroutines.launch
 @ExperimentalMaterial3Api
 
 class AdminInterfaceActivity : ComponentActivity() {
-@RequiresApi(Build.VERSION_CODES.O)
-override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    setContent {
-        VarzybosTheme {
-            Surface(
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            VarzybosTheme {
+                Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
-            ) {
-                Interface()
+                ) {
+                    Interface()
+                }
             }
         }
-    }
     }
 }
 
@@ -119,14 +115,14 @@ override fun onCreate(savedInstanceState: Bundle?) {
 @Composable
 private fun Interface(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val mainViewModel : MainViewModel by viewModel<MainViewModel>()
+    val mainViewModel: MainViewModel by viewModel<MainViewModel>()
     mainViewModel.initFirestore()
     mainViewModel.updateEvents()
     mainViewModel.updateUsers()
 
     FirebaseAuth.getInstance().currentUser?.let { UserSingleton.initialize(it, mainViewModel) }
 
-   // val eventList = mainViewModel.eventList.observeAsState()
+    // val eventList = mainViewModel.eventList.observeAsState()
 
     //val mainViewModel = MainActivity.mainViewModel
 
@@ -154,24 +150,28 @@ private fun Interface(modifier: Modifier = Modifier) {
     ModalNavigationDrawer(
         drawerContent = {
             ModalDrawerSheet {
-                Text(UserSingleton.name + " " + UserSingleton.surname, modifier = Modifier.padding(16.dp))
+                Text(
+                    UserSingleton.name + " " + UserSingleton.surname,
+                    modifier = Modifier.padding(16.dp)
+                )
                 HorizontalDivider()
                 NavigationDrawerItem(
                     label = { Text(text = "Nustatymai") },
-                    icon = {Icon(Icons.Filled.Settings, "settings")},
+                    icon = { Icon(Icons.Filled.Settings, "settings") },
                     selected = false,
                     onClick = { /*TODO*/ }
                 )
                 NavigationDrawerItem(
                     label = { Text(text = "Atsijungti") },
                     selected = false,
-                    icon = {Icon(Icons.AutoMirrored.Filled.ExitToApp, "log-out")},
+                    icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, "log-out") },
                     onClick = {
 
                         var auth = FirebaseAuth.getInstance()
                         auth.signOut()
                         val packageManager: PackageManager = context.packageManager
-                        val intent: Intent = packageManager.getLaunchIntentForPackage(context.packageName)!!
+                        val intent: Intent =
+                            packageManager.getLaunchIntentForPackage(context.packageName)!!
                         val componentName: ComponentName = intent.component!!
                         val restartIntent: Intent = Intent.makeRestartActivityTask(componentName)
                         context.startActivity(restartIntent)
@@ -182,13 +182,19 @@ private fun Interface(modifier: Modifier = Modifier) {
         },
         drawerState = drawerState
     ) {
-        Scaffold (
+        Scaffold(
             modifier =
             Modifier
                 .fillMaxSize(),
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = {Image(painter = painterResource(R.drawable.logo),"Logo", Modifier.height(70.dp))},
+                    title = {
+                        Image(
+                            painter = painterResource(R.drawable.logo),
+                            "Logo",
+                            Modifier.height(70.dp)
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch {
@@ -200,15 +206,18 @@ private fun Interface(modifier: Modifier = Modifier) {
                     },
                     actions = {
                         IconButton(onClick = { mainViewModel.updateEvents() }) {
-                            Icon(imageVector = Icons.Default.Refresh, contentDescription = "Refresh")
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Refresh"
+                            )
                         }
                     }
                 )
             },
             floatingActionButton = {
-                if(actionButtonEnabled){
+                if (actionButtonEnabled) {
                     FloatingActionButton(onClick = {
-                        var intent = Intent(context , EventCreationActivity::class.java)
+                        var intent = Intent(context, EventCreationActivity::class.java)
                         context.startActivity(intent)
                     }) {
                         Icon(Icons.Default.Create, contentDescription = "Create event")
@@ -217,22 +226,22 @@ private fun Interface(modifier: Modifier = Modifier) {
 
             },
             bottomBar = {
-                NavigationBar(
-                ) {
+                NavigationBar {
                     items.forEachIndexed { index, item ->
                         NavigationBarItem(
                             icon = {
                                 var ico = Icons.Filled.Brightness1
-                                if(item == AdminScreen.Renginiai){
+                                if (item == AdminScreen.Renginiai) {
                                     ico = Icons.Filled.Attractions
                                 }
-                                if(item == AdminScreen.Vartotojai){
+                                if (item == AdminScreen.Vartotojai) {
                                     ico = Icons.Filled.Man
                                 }
-                                if(item == AdminScreen.Pranesimai){
+                                if (item == AdminScreen.Pranesimai) {
                                     ico = Icons.AutoMirrored.Filled.Message
                                 }
-                                Icon(ico, contentDescription = item.route) },
+                                Icon(ico, contentDescription = item.route)
+                            },
                             label = { Text(item.route) },
                             selected = selectedItem == index,
                             onClick = {
@@ -244,7 +253,7 @@ private fun Interface(modifier: Modifier = Modifier) {
                     }
                 }
             }
-        ){values ->
+        ) { values ->
 //        LazyColumn(modifier = Modifier
 //            .fillMaxSize()
 //            .padding(values)){
@@ -255,16 +264,16 @@ private fun Interface(modifier: Modifier = Modifier) {
 //
 //        }
 
-            NavHost(navController = navController, startDestination = AdminScreen.Renginiai.route ){
-                composable(route = AdminScreen.Renginiai.route){
+            NavHost(navController = navController, startDestination = AdminScreen.Renginiai.route) {
+                composable(route = AdminScreen.Renginiai.route) {
                     actionButtonEnabled = true
                     EventList(mainViewModel.eventList, values, mainViewModel)
                 }
-                composable(route = AdminScreen.Vartotojai.route){
+                composable(route = AdminScreen.Vartotojai.route) {
                     actionButtonEnabled = false
                     UserList(mainViewModel.userList, values, mainViewModel)
                 }
-                composable(route = AdminScreen.Pranesimai.route){
+                composable(route = AdminScreen.Pranesimai.route) {
                     actionButtonEnabled = false
                     ChatActivity(values)
                 }
@@ -280,16 +289,22 @@ private fun Interface(modifier: Modifier = Modifier) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues, mainViewModel: MainViewModel){
+private fun EventList(
+    eventList: SnapshotStateList<Event>,
+    values: PaddingValues,
+    mainViewModel: MainViewModel
+) {
     var context = LocalContext.current
 
 //    var selectedItem by rememberSaveable {
 //        mutableStateOf(Event())
 //    }
 
-    LazyColumn(modifier = Modifier
-        .fillMaxSize()
-        .padding(values)) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(values)
+    ) {
         items(items = eventList.toList()) { item ->
             //eventItem(event = item)
             var pressOffset by remember {
@@ -298,7 +313,7 @@ private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues
             var itemHeight by remember {
                 mutableStateOf(0.dp)
             }
-            Card (modifier = Modifier.pointerInput(true){
+            Card(modifier = Modifier.pointerInput(true) {
                 detectTapGestures(
                     onPress = {
                         pressOffset = DpOffset(it.x.toDp(), it.y.toDp())
@@ -311,7 +326,13 @@ private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues
                 }
                 ListItem(
                     headlineContent = { Text(item.eventName) },
-                    supportingContent = { Text(com.app.varzybos.chat.millisToDate(item.eventDate.toInstant().toEpochMilli())) },
+                    supportingContent = {
+                        Text(
+                            com.app.varzybos.chat.millisToDate(
+                                item.eventDate.toInstant().toEpochMilli()
+                            )
+                        )
+                    },
                     modifier = Modifier.clickable(onClick = {
                         val intent = Intent(context, ControlEventActivity::class.java)
                         intent.putExtra("eventId", item.eventId)
@@ -362,16 +383,22 @@ private fun EventList(eventList: SnapshotStateList<Event>, values: PaddingValues
 }
 
 @Composable
-private fun UserList(userList: SnapshotStateList<User>, values: PaddingValues, mainViewModel: MainViewModel){
+private fun UserList(
+    userList: SnapshotStateList<User>,
+    values: PaddingValues,
+    mainViewModel: MainViewModel
+) {
     var context = LocalContext.current
 
 //    var selectedItem by rememberSaveable {
 //        mutableStateOf(Event())
 //    }
 
-    LazyColumn(modifier = Modifier
-        .fillMaxSize()
-        .padding(values)) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(values)
+    ) {
         items(items = userList.toList()) { item ->
             var pressOffset by remember {
                 mutableStateOf(DpOffset.Zero)
@@ -379,7 +406,7 @@ private fun UserList(userList: SnapshotStateList<User>, values: PaddingValues, m
             var itemHeight by remember {
                 mutableStateOf(0.dp)
             }
-            Card (modifier = Modifier.pointerInput(true){
+            Card(modifier = Modifier.pointerInput(true) {
                 detectTapGestures(
                     onPress = {
                         pressOffset = DpOffset(it.x.toDp(), it.y.toDp())
@@ -418,9 +445,17 @@ private fun UserList(userList: SnapshotStateList<User>, values: PaddingValues, m
                                 isContextMenuVisible = false
                                 var auth = FirebaseAuth.getInstance()
                                 auth.sendPasswordResetEmail(item.email).addOnSuccessListener {
-                                    Toast.makeText(context, "Slaptažodžio keitimo laiškas išsiūstas", Toast.LENGTH_SHORT).show()
-                                }.addOnFailureListener{e ->
-                                    Toast.makeText(context, "Nepavyko išsiūsti laiško", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Slaptažodžio keitimo laiškas išsiūstas",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }.addOnFailureListener { e ->
+                                    Toast.makeText(
+                                        context,
+                                        "Nepavyko išsiūsti laiško",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                     Log.e(TAG, "password email error", e)
                                 }
                             })

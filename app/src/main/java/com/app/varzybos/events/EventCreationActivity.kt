@@ -2,9 +2,7 @@ package com.app.varzybos.events
 
 import android.app.Activity
 import android.content.ContentValues.TAG
-import android.content.res.Resources
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -30,7 +28,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -45,11 +43,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberTimePickerState
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,8 +52,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -77,31 +69,30 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.time.Instant
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.UUID
 import kotlin.system.measureTimeMillis
 
-class EventCreationActivity: ComponentActivity() {
+class EventCreationActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     @RequiresApi(Build.VERSION_CODES.O)
     @Override
     override fun onCreate(savedInstanceState: Bundle?) {
         val (bitmap, updateBitmap) = mutableStateOf<Bitmap?>(null)
-        var imageUri : Uri by mutableStateOf(Uri.parse("android.resource://com.app.varzybos/" + R.drawable.img))
+        var imageUri: Uri by mutableStateOf(Uri.parse("android.resource://com.app.varzybos/" + R.drawable.img))
 
-        var pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            // Callback is invoked after the user selects a media item or closes the
-            // photo picker.
-            if (uri != null) {
-                Log.d("PhotoPicker", "Selected URI: $uri")
-                updateBitmap(MediaStore.Images.Media.getBitmap(this.contentResolver, uri))
-                imageUri = uri
-            } else {
-                Log.d("PhotoPicker", "No media selected")
+        var pickMedia =
+            registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+                // Callback is invoked after the user selects a media item or closes the
+                // photo picker.
+                if (uri != null) {
+                    Log.d("PhotoPicker", "Selected URI: $uri")
+                    updateBitmap(MediaStore.Images.Media.getBitmap(this.contentResolver, uri))
+                    imageUri = uri
+                } else {
+                    Log.d("PhotoPicker", "No media selected")
+                }
             }
-        }
         super.onCreate(savedInstanceState)
         setContent {
             VarzybosTheme {
@@ -109,7 +100,7 @@ class EventCreationActivity: ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val mainViewModel : MainViewModel by viewModel<MainViewModel>()
+                    val mainViewModel: MainViewModel by viewModel<MainViewModel>()
                     val context = LocalContext.current
                     var eventName by rememberSaveable(stateSaver = TextFieldValue.Saver) {
                         mutableStateOf(TextFieldValue(""))
@@ -118,7 +109,7 @@ class EventCreationActivity: ComponentActivity() {
                         mutableStateOf(TextFieldValue(""))
                     }
                     var eventTime by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-                    mutableStateOf(TextFieldValue(""))
+                        mutableStateOf(TextFieldValue(""))
                     }
                     val stateDate = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
                     var eventDate: Date
@@ -131,31 +122,41 @@ class EventCreationActivity: ComponentActivity() {
                         return time.matches(regex.toRegex())
                     }
 
-                    Scaffold (
+                    Scaffold(
                         modifier =
                         Modifier
                             .fillMaxSize(),
                         topBar = {
                             CenterAlignedTopAppBar(
 
-                                title = { Image(painter = painterResource(R.drawable.logo),"Logo", Modifier.height(70.dp)) },
+                                title = {
+                                    Image(
+                                        painter = painterResource(R.drawable.logo),
+                                        "Logo",
+                                        Modifier.height(70.dp)
+                                    )
+                                },
                                 navigationIcon = {
                                     IconButton(onClick = {
                                         activity.finish()
                                     }) {
-                                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                            contentDescription = "Back"
+                                        )
                                     }
                                 }
                             )
                         }
 
-                    ){pad->
-                        Column(modifier = Modifier
-                            .fillMaxSize()
-                            .padding(pad)
-                            .verticalScroll(rememberScrollState()),
+                    ) { pad ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(pad)
+                                .verticalScroll(rememberScrollState()),
                             horizontalAlignment = Alignment.CenterHorizontally
-                        ){
+                        ) {
                             Spacer(modifier = Modifier.size(16.dp))
 //                            ImageDisplay(bitmap, {
 //                                pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -164,7 +165,11 @@ class EventCreationActivity: ComponentActivity() {
                                 .width(100.dp)
                                 .height(100.dp)
                                 .clickable {
-                                    pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                                    pickMedia.launch(
+                                        PickVisualMediaRequest(
+                                            ActivityResultContracts.PickVisualMedia.ImageOnly
+                                        )
+                                    )
                                 }) {
                                 AsyncImage(
                                     model = imageUri,
@@ -173,28 +178,38 @@ class EventCreationActivity: ComponentActivity() {
                                 )
                             }
                             Spacer(modifier = Modifier.size(16.dp))
-                            OutlinedTextField(value = eventName,
-                                onValueChange = {eventName = it},
-                                placeholder = { Text("Renginio pavadinimas")},
+                            OutlinedTextField(
+                                value = eventName,
+                                onValueChange = { eventName = it },
+                                placeholder = { Text("Renginio pavadinimas") },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedTextColor = Color.DarkGray,
                                     unfocusedTextColor = Color.DarkGray
-                                ))
+                                )
+                            )
                             Spacer(modifier = Modifier.size(16.dp))
-                            DatePicker(state = stateDate, headline = null, title = null, showModeToggle = false)
-                            OutlinedTextField(value = eventTime,
-                                onValueChange = {eventTime = it},
-                                placeholder = { Text("00:00")},
+                            DatePicker(
+                                state = stateDate,
+                                headline = null,
+                                title = null,
+                                showModeToggle = false
+                            )
+                            OutlinedTextField(
+                                value = eventTime,
+                                onValueChange = { eventTime = it },
+                                placeholder = { Text("00:00") },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedTextColor = Color.DarkGray,
                                     unfocusedTextColor = Color.DarkGray
-                                ))
+                                )
+                            )
                             Spacer(modifier = Modifier.size(16.dp))
-                            OutlinedTextField(value = description,
-                                onValueChange = {description = it},
-                                placeholder = { Text("Aprašymas")},
+                            OutlinedTextField(
+                                value = description,
+                                onValueChange = { description = it },
+                                placeholder = { Text("Aprašymas") },
                                 singleLine = false,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedTextColor = Color.DarkGray,
@@ -203,21 +218,24 @@ class EventCreationActivity: ComponentActivity() {
                                 modifier = Modifier
                                     .weight(1f)
                                     .height(200.dp)
-                                    .fillMaxWidth(0.8f))
+                                    .fillMaxWidth(0.8f)
+                            )
                             Spacer(modifier = Modifier.size(16.dp))
                             Button(
                                 onClick = {
                                     try {
                                         enableButton = false
-                                        var startDate : Date
-                                        var event : Event = Event()
+                                        var startDate: Date
+                                        var event: Event = Event()
                                         var milis: Long = 0
-                                        if (isValidTime(eventTime.text)){
+                                        if (isValidTime(eventTime.text)) {
                                             val dateFormat = SimpleDateFormat("HH:mm")
                                             val parsed = dateFormat.parse(eventTime.text)
 
-                                            if (stateDate.selectedDateMillis!=null){
-                                                milis = stateDate.selectedDateMillis!! + parsed.toInstant().toEpochMilli()
+                                            if (stateDate.selectedDateMillis != null) {
+                                                milis =
+                                                    stateDate.selectedDateMillis!! + parsed.toInstant()
+                                                        .toEpochMilli()
                                             }
                                             var instant = Instant.ofEpochMilli(milis)
 
@@ -230,7 +248,8 @@ class EventCreationActivity: ComponentActivity() {
                                                 //event.thumbnail = bitmap.asImageBitmap()
                                             }
 
-                                            val storageRef = FirebaseStorage.getInstance().getReference("images/"+event.eventId)
+                                            val storageRef = FirebaseStorage.getInstance()
+                                                .getReference("images/" + event.eventId)
                                             runBlocking {
                                                 storageRef.putFile(imageUri).await()
                                             }
@@ -240,19 +259,27 @@ class EventCreationActivity: ComponentActivity() {
                                                 mainViewModel.saveEvent(event)
                                             }
                                             //Log.e("Time saveEvent", t.toString())
-                                            activity?.finish()
+                                            activity.finish()
                                             enableButton = true
 
                                         }
 
-                                    } catch (e: Exception){
+                                    } catch (e: Exception) {
                                         enableButton = true
-                                        Toast.makeText(context, "Klaida kuriant įvykį.", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Klaida kuriant įvykį.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                         Log.e(TAG, "Event Creation error", e)
                                     }
 
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6750A4)),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(
+                                        0xFF6750A4
+                                    )
+                                ),
                                 modifier = Modifier
                                     .fillMaxWidth(0.6f)
                                     .height(46.dp),

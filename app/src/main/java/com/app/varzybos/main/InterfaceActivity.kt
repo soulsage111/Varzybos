@@ -1,8 +1,7 @@
-package com.app.varzybos.main;
+package com.app.varzybos.main
 
 import android.annotation.SuppressLint
 import android.content.ComponentName
-import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -29,11 +28,8 @@ import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.Attractions
 import androidx.compose.material.icons.filled.Brightness1
 import androidx.compose.material.icons.filled.ChecklistRtl
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ElevatedCard
@@ -82,18 +78,16 @@ import coil.compose.AsyncImage
 import com.app.varzybos.MainViewModel
 import com.app.varzybos.R
 import com.app.varzybos.Screen
+import com.app.varzybos.UserSingleton
 import com.app.varzybos.chat.ChatActivity
+import com.app.varzybos.chat.millisToDate
 import com.app.varzybos.data.Event
 import com.app.varzybos.data.User
-import com.app.varzybos.UserSingleton
-import com.app.varzybos.chat.millisToDate
 import com.app.varzybos.events.EventActivity
 import com.app.varzybos.ui.theme.VarzybosTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.launch
-import org.koin.core.time.measureDuration
-import kotlin.system.measureTimeMillis
 
 @ExperimentalMaterial3Api
 
@@ -196,22 +190,22 @@ private fun Interface(modifier: Modifier = Modifier) {
                 }
             })
         }, bottomBar = {
-            NavigationBar(
-            ) {
+            NavigationBar {
                 items.forEachIndexed { index, item ->
-                    NavigationBarItem(icon = {
-                        var ico = Icons.Filled.Brightness1
-                        if (item == Screen.Renginiai) {
-                            ico = Icons.Filled.Attractions
-                        }
-                        if (item == Screen.ManoRenginiai) {
-                            ico = Icons.Filled.ChecklistRtl
-                        }
-                        if (item == Screen.Pranesimai) {
-                            ico = Icons.AutoMirrored.Filled.Message
-                        }
-                        Icon(ico, contentDescription = item.route)
-                    },
+                    NavigationBarItem(
+                        icon = {
+                            var ico = Icons.Filled.Brightness1
+                            if (item == Screen.Renginiai) {
+                                ico = Icons.Filled.Attractions
+                            }
+                            if (item == Screen.ManoRenginiai) {
+                                ico = Icons.Filled.ChecklistRtl
+                            }
+                            if (item == Screen.Pranesimai) {
+                                ico = Icons.AutoMirrored.Filled.Message
+                            }
+                            Icon(ico, contentDescription = item.route)
+                        },
                         label = { Text(item.route) },
                         selected = selectedItem == index,
                         onClick = {
