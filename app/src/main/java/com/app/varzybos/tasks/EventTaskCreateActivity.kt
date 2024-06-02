@@ -189,6 +189,9 @@ class EventTaskCreateActivity : ComponentActivity() {
 
                                     Button(
                                         onClick = {
+                                            if (pointListFromIntent.isNotEmpty()) {
+                                                pointList = pointListFromIntent
+                                            }
                                             try {
                                                 intent.putExtra("name", taskName.text)
                                                 intent.putExtra("description", taskDescription.text)

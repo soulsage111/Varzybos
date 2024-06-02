@@ -155,12 +155,7 @@ class AdminMapActivity : ComponentActivity() {
             mapView.overlays.add(roadOverlay)
         }
 
-
         mapView.invalidate()
-
-
-
-
 
         setContent {
             VarzybosTheme {
